@@ -1,23 +1,5 @@
 # コマンド実行規約（ticket-tasukiサンプル）
 # 危険なコマンド実行時にclaude-naggarが警告/ブロックする
+# 書式: https://github.com/hollySizzle/claude-nagger
 
-rules:
-  # 例: 本番環境操作の警告
-  # - name: "本番環境操作規約"
-  #   patterns:
-  #     - "deploy*"
-  #     - "*production*"
-  #   severity: "block"
-  #   token_threshold: 25000
-  #   message: |
-  #     本番環境への操作にはオーナーの承認が必要です。
-
-  # 例: Git force push警告
-  # - name: "Git force push規約"
-  #   patterns:
-  #     - "git push*--force*"
-  #     - "git push*-f*"
-  #   severity: "block"
-  #   message: |
-  #     force pushは禁止です。通常のpushを使用してください。
-  []
+rules: []

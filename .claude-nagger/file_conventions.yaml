@@ -1,24 +1,5 @@
 # ファイル編集規約（ticket-tasukiサンプル）
 # 特定ファイルの編集時にclaude-naggarが警告/ブロックする
+# 書式: https://github.com/hollySizzle/claude-nagger
 
-rules:
-  # 例: テスト設計書はtester subagentの責務
-  # - name: "テスト設計書編集規約"
-  #   patterns:
-  #     - "**/tests/e2e/**"
-  #     - "**/tests/acceptance/**"
-  #   severity: "warn"
-  #   token_threshold: 35000
-  #   message: |
-  #     E2E/受入テストはtester subagentの責務です。
-  #     coder subagentで編集していませんか？
-
-  # 例: 設定ファイルの変更警告
-  # - name: "設定ファイル編集規約"
-  #   patterns:
-  #     - "**/.env*"
-  #     - "**/config/**"
-  #   severity: "block"
-  #   message: |
-  #     設定ファイルの変更にはオーナーの承認が必要です。
-  []
+rules: []

@@ -62,6 +62,64 @@ claude --plugin-dir ./ticket-tasuki
 - **必須**: Claude Code、redmine-epic-grid MCP
 - **推奨**: claude-nagger
 
+## claude-naggarセットアップ（任意）
+
+ticket-tasukiはclaude-naggarなしでも動作しますが、併用するとleader規約の通知・subagent別の規約ガードレールが有効になります。
+
+### 1. claude-naggarのインストール
+
+```bash
+pip install claude-nagger
+```
+
+詳細: https://github.com/hollySizzle/claude-nagger
+
+### 2. 設定ファイルの配置
+
+本プラグインに同梱のサンプル設定を、プロジェクトの`.claude-nagger/`にコピーしてください:
+
+```bash
+cp -r .claude/my_plugins/ticket-tasuki/.claude-nagger/ .claude-nagger/
+```
+
+または手動で以下を配置:
+- `.claude-nagger/config.yaml` — セッション規約・subagent別override
+- `.claude-nagger/file_conventions.yaml` — ファイル編集規約
+- `.claude-nagger/command_conventions.yaml` — コマンド実行規約
+
+### 3. Claude Codeのhooks設定
+
+`.claude/settings.json`（または`.claude/settings.local.json`）にフックを追加:
+
+```json
+{
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "",
+        "hooks": [{ "type": "command", "command": "claude-nagger hook session-startup" }]
+      },
+      {
+        "matcher": "Edit",
+        "hooks": [{ "type": "command", "command": "claude-nagger hook implementation-design" }]
+      },
+      {
+        "matcher": "Write",
+        "hooks": [{ "type": "command", "command": "claude-nagger hook implementation-design" }]
+      },
+      {
+        "matcher": "Bash",
+        "hooks": [{ "type": "command", "command": "claude-nagger hook implementation-design" }]
+      }
+    ]
+  }
+}
+```
+
+### 4. 設定のカスタマイズ
+
+サンプルのコメントアウトされたルールを参考に、プロジェクトに合わせてカスタマイズしてください。
+
 ## 構成
 
 ```

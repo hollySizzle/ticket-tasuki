@@ -13,19 +13,49 @@ leader（メインエージェント）
   やること: 読む・判断する・指示する・レビューする
   やらないこと: コード編集
   │
-  ├── coder subagent → コード実装
-  ├── ticket-manager subagent → チケット操作
+  ├── coder subagent → コード実装・単体テスト
+  ├── tester subagent → 受入テスト・E2Eテスト
+  ├── scribe subagent → チケット読み取り
   ├── Explore subagent → コード調査
-  └── Bash subagent → テスト実行
+  └── general-purpose subagent → Web調査
 ```
 
 ## インストール
 
+### A. マーケットプレイス経由（推奨）
+
 ```bash
-claude --plugin-dir ./packages/ticket-tasuki
+# マーケットプレイス追加
+/plugin marketplace add hollySizzle/ticket-tasuki
+
+# プラグインインストール
+/plugin install ticket-tasuki@hollySizzle-ticket-tasuki
 ```
 
-または `/plugin install` で導入。
+### B. ローカルディレクトリ指定
+
+```bash
+git clone https://github.com/hollySizzle/ticket-tasuki.git
+claude --plugin-dir ./ticket-tasuki
+```
+
+### C. プロジェクトのsettings.jsonに直接設定
+
+```json
+{
+  "extraKnownMarketplaces": {
+    "ticket-tasuki": {
+      "source": {
+        "source": "github",
+        "repo": "hollySizzle/ticket-tasuki"
+      }
+    }
+  },
+  "enabledPlugins": {
+    "ticket-tasuki@ticket-tasuki": true
+  }
+}
+```
 
 ## 依存
 
@@ -35,13 +65,17 @@ claude --plugin-dir ./packages/ticket-tasuki
 ## 構成
 
 ```
-packages/ticket-tasuki/
-  .claude-plugin/plugin.json    ← マニフェスト
-  agents/coder.md               ← coder subagent定義（tools制限あり）
-  skills/tasuki-setup/SKILL.md  ← セットアップskill
-  skills/tasuki-delegate/SKILL.md ← coder委譲skill
-  hooks/hooks.json              ← フック定義
-  CLAUDE.md                     ← leader規約（ソフト制約）
+.claude-plugin/plugin.json       ← マニフェスト
+agents/
+  coder.md                       ← coder subagent（tools制限あり）
+  tester.md                      ← tester subagent（Read/Bash/Glob/Grep）
+  scribe.md                      ← scribe subagent（Redmine MCPのみ）
+skills/
+  tasuki-setup/SKILL.md          ← セットアップskill
+  tasuki-delegate/SKILL.md       ← coder委譲skill
+hooks/hooks.json                 ← フック定義
+CLAUDE.md                        ← leader規約（ソフト制約）
+.claude-nagger/                  ← claude-nagger設定テンプレート（任意）
 ```
 
 ## 制御方式
@@ -49,5 +83,6 @@ packages/ticket-tasuki/
 | 対象 | 制御手段 | 強制力 |
 |------|---------|--------|
 | leader | CLAUDE.md指示 | ソフト制約 |
-| coder | agents/coder.mdのtools:フィールド | 物理的制限 |
-| coder | claude-nagger subagent_types.coder | 通知レベル |
+| coder | agents/coder.mdのtools: | 物理的制限 |
+| tester | agents/tester.mdのtools: | 物理的制限 |
+| scribe | agents/scribe.mdのtools: | 物理的制限 |

@@ -9,7 +9,7 @@
   "plugins": [
     {
       "name": "ticket-tasuki",
-      "source": ".",
+      "source": "./",
       "description": "TiDD基盤のleader/coder分離プラグイン。leaderが判断・レビューし、coderが実装する。",
       "version": "0.1.0",
       "strict": true

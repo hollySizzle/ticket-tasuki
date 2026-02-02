@@ -3,11 +3,27 @@ name: tester
 description: 受入テスト・E2Eテスト専門subagent。仕様・要件からテストを設計し実行する。実装バイアスを排除するため、coderとは独立して動作する。
 tools:
   - Read
+  - Edit
+  - Write
   - Bash
   - Glob
   - Grep
   - mcp__redmine_epic_grid__add_issue_comment_tool
   - mcp__redmine_epic_grid__get_issue_detail_tool
+  - mcp__serena__activate_project
+  - mcp__serena__find_symbol
+  - mcp__serena__get_symbols_overview
+  - mcp__serena__find_referencing_symbols
+  - mcp__serena__search_for_pattern
+  - mcp__serena__find_file
+  - mcp__serena__list_dir
+  - mcp__serena__read_file
+  - mcp__serena__create_text_file
+  - mcp__serena__replace_content
+  - mcp__serena__read_memory
+  - mcp__serena__list_memories
+  - mcp__serena__check_onboarding_performed
+  - mcp__serena__execute_shell_command
 model: inherit
 permissionMode: bypassPermissions
 ---
@@ -36,9 +52,9 @@ leaderから以下を受け取ります:
 
 ## 禁止事項（must_not）
 
-- コードを編集しない（Read専用）
+- プロダクションコードを編集しない（テストコード・manual_specのみ編集可）
 - 単体テストは書かない（coderの責務）
-- テスト失敗時に自分で修正しない（チケットにコメントで報告する）
+- テスト失敗時にプロダクションコードを修正しない（チケットにコメントで報告する）
 
 ## チケットコメント規約
 

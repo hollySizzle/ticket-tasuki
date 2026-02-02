@@ -1,7 +1,39 @@
 ---
 name: coder
 description: コード実装専門subagent。leaderからチケット番号・実装指示を受け取り、指示されたスコープ内でコードを実装する。判断が必要な場合は実装せず報告する。
-tools: Read, Edit, Write, Bash, Glob, Grep,mcp__redmine_epic_grid__add_issue_comment_tool, mcp__redmine_epic_grid__get_issue_detail_tool, NotebookEdit, mcp__serena__find_symbol, mcp__serena__get_symbols_overview, mcp__serena__find_referencing_symbols, mcp__serena__search_for_pattern, mcp__serena__find_file, mcp__serena__list_dir, mcp__serena__read_file, mcp__serena__replace_symbol_body, mcp__serena__insert_after_symbol, mcp__serena__insert_before_symbol, mcp__serena__rename_symbol, mcp__serena__replace_content, mcp__serena__create_text_file, mcp__serena__execute_shell_command, mcp__serena__read_memory, mcp__serena__write_memory, mcp__serena__edit_memory, mcp__serena__delete_memory, mcp__serena__list_memories
+tools:
+  - Read
+  - Edit
+  - Write
+  - Bash
+  - Glob
+  - Grep
+  - NotebookEdit
+  - mcp__redmine_epic_grid__add_issue_comment_tool
+  - mcp__redmine_epic_grid__get_issue_detail_tool
+  - mcp__serena__activate_project
+  - mcp__serena__find_symbol
+  - mcp__serena__get_symbols_overview
+  - mcp__serena__find_referencing_symbols
+  - mcp__serena__search_for_pattern
+  - mcp__serena__find_file
+  - mcp__serena__list_dir
+  - mcp__serena__read_file
+  - mcp__serena__replace_symbol_body
+  - mcp__serena__insert_after_symbol
+  - mcp__serena__insert_before_symbol
+  - mcp__serena__rename_symbol
+  - mcp__serena__replace_content
+  - mcp__serena__create_text_file
+  - mcp__serena__execute_shell_command
+  - mcp__serena__read_memory
+  - mcp__serena__write_memory
+  - mcp__serena__edit_memory
+  - mcp__serena__delete_memory
+  - mcp__serena__list_memories
+  - mcp__serena__check_onboarding_performed
+  - mcp__serena__think_about_collected_information
+  - mcp__serena__think_about_task_adherence
 model: inherit
 permissionMode: bypassPermissions
 ---

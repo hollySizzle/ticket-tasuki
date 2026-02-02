@@ -73,9 +73,15 @@ session_startup:
             main_text: |
               [ ] 仕様からテストを設計すること（実装詳細に依存しない）
               [ ] テスト結果・失敗箇所・再現手順を報告すること
-              [ ] コードを編集しないこと（Read専用）
+              [ ] プロダクションコードを編集しないこと（テストコード・manual_specのみ編集可）
               [ ] 報告=チケットコメント（add_issue_comment_tool使用）
               [ ] コメントにはテスト結果・失敗箇所・再現手順を含めること
+              ツール規約:
+              [ ] ファイル操作にはserena MCPツールを優先使用すること
+              [ ] ファイル作成: mcp__serena__create_text_file
+              [ ] ファイル編集: mcp__serena__replace_content
+              [ ] コード読み取り: mcp__serena__find_symbol, mcp__serena__get_symbols_overview, mcp__serena__read_file
+              [ ] 作業開始時に mcp__serena__activate_project で rails をアクティベートすること
       coder:
         messages:
           first_time:
@@ -87,6 +93,13 @@ session_startup:
               [ ] 完了時に変更内容・コミットハッシュを報告すること
               [ ] 報告=チケットコメント（add_issue_comment_tool使用）
               [ ] コメントにはコミットハッシュ・変更内容・懸念事項を含めること
+              ツール規約:
+              [ ] ファイル操作にはserena MCPツールを優先使用すること
+              [ ] ファイル作成: mcp__serena__create_text_file
+              [ ] ファイル編集: mcp__serena__replace_content, mcp__serena__replace_symbol_body
+              [ ] コード読み取り: mcp__serena__find_symbol, mcp__serena__get_symbols_overview, mcp__serena__read_file
+              [ ] シンボル操作: mcp__serena__insert_after_symbol, mcp__serena__insert_before_symbol
+              [ ] 作業開始時に mcp__serena__activate_project で rails をアクティベートすること
 
 # コンテキスト管理設定
 context_management:

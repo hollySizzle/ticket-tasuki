@@ -9,7 +9,7 @@ tools:
   - mcp__redmine_epic_grid__add_issue_comment_tool
   - mcp__redmine_epic_grid__get_issue_detail_tool
 model: inherit
-permissionMode: default
+permissionMode: bypassPermissions
 ---
 
 あなたは受入テスト・E2Eテスト専門のsubagentです。

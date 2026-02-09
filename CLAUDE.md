@@ -37,7 +37,7 @@
 | subagent | 用途 |
 |----------|------|
 | coder | コード実装（Edit/Write/Bash） |
-| scribe | チケット読み取り（Redmine MCP） |
+| scribe | Redmineチケット管理（CRUD・階層管理・バージョン管理） |
 | tester | 受入テスト・E2Eテスト |
 | Explore | コードベース調査（読み取り専用） |
 | Bash | テスト実行・コマンド実行 |

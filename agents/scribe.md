@@ -70,7 +70,6 @@ Epic → Feature → UserStory → Task / Bug / Test
 - Feature: 中分類（例: ログイン機能）
 - UserStory: ユーザー要件（例: パスワードリセット）
 - Task/Bug/Test: 実作業単位
-
 - **重要**: Epic, Featureの新規作成は必ずオーナーの判断が必要である
 
 ## US分解ワークフローテンプレート

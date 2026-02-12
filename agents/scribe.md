@@ -125,7 +125,7 @@ US: {ユーザーストーリー名}
 
 ## PMO報告義務
 
-以下のタイミングでPMO subagentにpeer DMで通知すること（PMOが同一チーム内に存在する場合）:
+以下のタイミングでprocess-auditor subagentにpeer DMで通知すること（process-auditorが同一チーム内に存在する場合）:
 
 | タイミング | 通知内容 |
 |-----------|---------|
@@ -133,6 +133,6 @@ US: {ユーザーストーリー名}
 | ステータス変更時 | `issue_{id} [PMO報告] ステータス変更: {旧}→{新}` |
 | クローズ依頼受領時 | `issue_{id} [PMO報告] クローズ前監査依頼` |
 
-- PMOが不在の場合はスキップする（エラーにしない）
-- 通知はSendMessage（type: "message", recipient: "pmo"）で送信する
+- process-auditorが不在の場合はスキップする（エラーにしない）
+- 通知はSendMessage（type: "message", recipient: "process-auditor"）で送信する
 - sendmessage_guardの制約（issue_id必須・100文字以内）を遵守する

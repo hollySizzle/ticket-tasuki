@@ -71,6 +71,8 @@ Epic → Feature → UserStory → Task / Bug / Test
 - UserStory: ユーザー要件（例: パスワードリセット）
 - Task/Bug/Test: 実作業単位
 
+- **重要**: Epic, Featureの新規作成は必ずオーナーの判断が必要である
+
 ## US分解ワークフローテンプレート
 
 UserStoryをTask分解する際、以下のTask構造をワークフローとして展開すること。

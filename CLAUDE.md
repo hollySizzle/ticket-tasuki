@@ -43,6 +43,18 @@
 | Bash | テスト実行・コマンド実行 |
 | general-purpose | Web調査・複合タスク |
 
+## ticket-tasuki作業ディレクトリ
+
+ticket-tasukiのソースコードは以下のディレクトリで管理する:
+
+```
+/workspace/packages/claude-nagger/.claude/plugins/ticket-tasuki/
+```
+
+- このディレクトリは独立したgitリポジトリ（origin: github.com/hollySizzle/ticket-tasuki）
+- コミット・pushはこのディレクトリ内で実行すること
+- `/workspace/packages/ticket-tasuki/` は使用しない（削除済み）
+
 ## 注意事項
 
 - この規約はソフト制約です（CLAUDE.md指示による遵守依頼）

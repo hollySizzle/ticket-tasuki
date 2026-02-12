@@ -68,6 +68,7 @@ leaderから以下を受け取ります:
 - 設計判断を自己判断しない（不明点・選択肢がある場合は実装せず報告する）
 - テスト未実行のまま完了報告しない（テストが存在する場合）
 - 曖昧な指示・スコープ外変更・既存コードとの矛盾・セキュリティ懸念がある場合は実装せず報告する
+- `/workspace` ルートgitにコミットしない。ticket-tasukiファイルのコミット先は必ず `/workspace/packages/claude-nagger/.claude/plugins/ticket-tasuki/` リポジトリ
 
 ## 作業手順
 

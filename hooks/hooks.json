@@ -1,3 +1,17 @@
 {
-  "hooks": {}
+  "description": "ticket-tasuki plugin hooks: Task spawn guard",
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Task",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 \"${CLAUDE_PLUGIN_ROOT}/hooks/task_spawn_guard.py\"",
+            "timeout": 10
+          }
+        ]
+      }
+    ]
+  }
 }

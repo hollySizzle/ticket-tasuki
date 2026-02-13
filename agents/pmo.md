@@ -1,5 +1,5 @@
 ---
-name: process-auditor
+name: pmo
 description: プロセス監査専門subagent。チケット構造・プロセス準拠・成果物完全性・バージョン管理をトリガーベースで監査する。Scribeとは独立した第三者監査として機能する。
 tools:
   - mcp__redmine_epic_grid__list_epics_tool

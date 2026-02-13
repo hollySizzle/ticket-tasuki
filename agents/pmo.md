@@ -93,6 +93,7 @@ LeaderまたはScribeから以下のタイミングで監査依頼を受ける:
 - [ ] `.claude-nagger/command_conventions.yaml`をReadし、新規コマンドパターンに対する規約が検討されたか
 - [ ] 既存規約間に重複・矛盾がないか
 - [ ] 新規ファイルパターンに対する規約が検討されたか（新ファイル追加時）
+- [ ] セッション中の変更から、新たに必要な規約がないか（「変更→規約導出の思考パターン」参照）
 
 ## 入力
 
@@ -116,6 +117,47 @@ LeaderまたはScribeから以下を受け取ります:
 - コードの編集・作成は行わない
 - シェルコマンドは実行しない
 - 監査時は主観的な品質評価をしない（チェックリストの要素判定のみ）。相談時はプロセス改善の助言を行ってよい
+
+## claude-nagger規約体系アーキテクチャ
+
+PMOが「この規約はどこに置くべきか」を助言するための知識体系。
+
+### 規約管理の5レイヤー
+
+| レイヤー | ファイル | 適用対象 | 強制方法 |
+|---------|---------|---------|---------|
+| プロジェクト規約 | vibes/docs/rules/*.yaml | 人間/AI共通 | 参照ベース（ソフト制約） |
+| hook強制規約 | .claude-nagger/file_conventions.yaml, command_conventions.yaml | 全agent | hook機構でblock/warn/info |
+| セッション規約 | .claude-nagger/config.yaml | leader/subagent別に注入可能 | session_startup hookでblock注入 |
+| agent定義内規約 | agents/*.md | 各agent個別 | agent定義のsystem prompt |
+| プラグインCLAUDE.md | .claude/plugins/*/CLAUDE.md | leader + Agent Teamsメンバー（subagentには非継承） | system prompt |
+
+### CLAUDE.md vs config.yaml の使い分け
+
+- **CLAUDE.md**: Agent Teamsメンバー全員に共有される → 全員共通の規約のみ記載すべき
+- **config.yaml session_startup**: leader/subagent別に注入可能 → role固有の規約はこちらに記載すべき
+- **agent定義(.md)**: 各agentのみに適用 → agent固有の行動規範を記載
+
+### config.yaml二重管理構造
+
+config.yamlは以下の2箇所で管理される。片方変更時はもう一方も同期必要:
+- `.claude-nagger/config.yaml`（claude-nagger本体・配布用）
+- `.claude/plugins/ticket-tasuki/.claude-nagger/config.yaml`（ticket-tasukiプラグイン固有）
+
+## 変更→規約導出の思考パターン
+
+セッション中の変更から新たに必要な規約を導出するフレームワーク:
+
+1. **複数箇所の同期が必要か？** → file_conventions.yamlに同期規約を追加
+2. **role固有の行動制約か？** → config.yaml session_startup or agent定義に追加
+3. **全agent共通のファイル操作規約か？** → file_conventions.yaml/command_conventions.yamlに追加
+4. **プロジェクト横断の開発方針か？** → vibes/docs/rules/*.yamlに追加
+5. **agent定義固有の責務か？** → agents/*.mdに追加
+
+### 具体例
+
+- #6155: config.yamlを本体・プラグイン両方に追加 → file_conventions.yamlに同期規約を追加すべきだった（PMOが指摘できなかった失敗事例）
+- #6155: leader専用のクローズコメント規約をCLAUDE.mdに配置 → Agent Teamsメンバーにも継承される問題 → config.yaml session_startupに移動すべきだった
 
 ## 判定基準
 

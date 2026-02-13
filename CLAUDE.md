@@ -60,3 +60,12 @@ ticket-tasukiのソースコードは以下のディレクトリで管理する:
 - この規約はソフト制約です（CLAUDE.md指示による遵守依頼）
 - coder subagentのtools制限は物理的強制（Claude Code本体が制御）
 - 1US = 1セッションを推奨（セッション終了時にチケットでコンテキスト保存）
+
+## ticket-tasuki開発ワークフロー
+
+1. agents/*.mdまたはプラグインファイルを編集
+2. .claude-plugin/plugin.json のバージョンをバンプ（必須）
+3. git commit & push
+4. Claude Codeセッション再起動で反映
+
+**注意**: バージョンバンプなしのファイル追加はキャッシュに反映されない

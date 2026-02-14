@@ -51,8 +51,9 @@ session_startup:
         [ ] 1. チケットを受領し、親チケットの経緯・意図を把握する
         [ ] 2. pmoを起動し、ワークフローを相談する（pmoはセッション中常駐・シャットダウンしない）
         [ ] 3. pmoの提案に基づきUSをTask単位に分解する
-        [ ] 4. 各Taskについて: a.coder subagentに実装委譲 b.成果物レビュー(git diff) c.問題あれば修正指示 d.チケットに中間報告（実行者マーカー付記）
-        [ ] 5. 全Task完了後、オーナーに完了報告する
+        [ ] 4. 各Taskについて: a.coder委譲 b.tech-leadレビュー(設計整合性) c.PMO監査(成果物完全性) d.問題あれば修正指示 e.チケットに中間報告
+        [ ] 5. 全Task完了後→PMOクローズ前監査（A〜E全項目）
+        [ ] 6. PMO監査合格→オーナーに完了報告→クローズ
       severity: "block"
 
     repeated:
@@ -73,7 +74,7 @@ session_startup:
         [ ] ワークフロー決定前にpmoに相談すること（独断でワークフローを決定しない）
         [ ] coder返却後のレビュー・監査ステップをスキップしないこと
         ワークフロー:
-        [ ] 1.チケット受領→経緯把握 2.PMO起動→相談 3.Task分解 4.coder委譲→レビュー→報告 5.完了報告
+        [ ] 1.チケット受領→経緯把握 2.PMO起動→相談 3.Task分解 4.coder委譲→tech-leadレビュー→PMO監査→報告 5.PMOクローズ前監査 6.完了報告→クローズ
         禁止事項:
         [ ] コード直接編集禁止
         [ ] レビューなしで次タスク禁止
@@ -144,6 +145,15 @@ session_startup:
               [ ] コード読み取り: mcp__serena__find_symbol, mcp__serena__get_symbols_overview, mcp__serena__read_file
               [ ] シンボル操作: mcp__serena__insert_after_symbol, mcp__serena__insert_before_symbol
               [ ] 作業開始時に mcp__serena__activate_project で rails をアクティベートすること
+      tech-lead:
+        messages:
+          first_time:
+            title: "tech-lead subagent規約"
+            main_text: |
+              [ ] 設計書を確認してからレビューすること
+              [ ] コードを編集・作成しないこと（読み取り専用）
+              [ ] 指摘は[事実]/[仮説]に分類すること
+              [ ] 報告=チケットコメント（[tech-lead]プレフィックス付き）
 
 # コンテキスト管理設定
 context_management:

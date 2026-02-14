@@ -9,6 +9,7 @@
 | coder | コード実装（Edit/Write/Bash） |
 | scribe | Redmineチケット管理（CRUD・階層管理・バージョン管理） |
 | tester | 受入テスト・E2Eテスト |
+| tech-lead | 技術レビュー（設計整合性・ドキュメント整合性・コード品質） |
 | Explore | コードベース調査（読み取り専用） |
 | Bash | テスト実行・コマンド実行 |
 | general-purpose | Web調査・複合タスク |

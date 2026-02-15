@@ -11,7 +11,9 @@ import json
 import sys
 
 # ブロック対象ツール（完全一致）
-BLOCKED_TOOLS = {"Read", "Edit", "Write", "Grep", "Glob", "MultiEdit"}
+BLOCKED_TOOLS = {
+    # "Read", "Edit", "Write", "Grep", "Glob", "MultiEdit"
+    }
 
 # ブロック対象MCPプレフィックス
 BLOCKED_MCP_PREFIXES = ("mcp__serena__",)

@@ -36,7 +36,10 @@ ticket-tasukiのソースコードは以下のディレクトリで管理する:
 
 1. agents/*.mdまたはプラグインファイルを編集
 2. .claude-plugin/plugin.json のバージョンをバンプ（必須）
-3. git commit & push
+3. git commit & push（pushまで必須。autoUpdate反映のため）
 4. Claude Codeセッション再起動で反映
 
-**注意**: バージョンバンプなしのファイル追加はキャッシュに反映されない
+**注意**:
+- バージョンバンプなしのファイル追加はキャッシュに反映されない
+- マーケットプレース: `ticket-tasuki@ticket-tasuki`（GitHub autoUpdate:true）
+- pushしないとGitHubマーケットプレースに反映されない

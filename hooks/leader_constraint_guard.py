@@ -16,6 +16,20 @@ BLOCKED_TOOLS = {"Read", "Edit", "Write", "Grep", "Glob", "MultiEdit"}
 # ブロック対象MCPプレフィックス
 BLOCKED_MCP_PREFIXES = ("mcp__serena__",)
 
+# Redmine許可リスト方式
+BLOCKED_REDMINE_PREFIX = "mcp__redmine_epic_grid__"
+ALLOWED_REDMINE_TOOLS = {
+    "mcp__redmine_epic_grid__get_issue_detail_tool",
+    "mcp__redmine_epic_grid__add_issue_comment_tool",
+    "mcp__redmine_epic_grid__update_issue_status_tool",
+    "mcp__redmine_epic_grid__list_epics_tool",
+    "mcp__redmine_epic_grid__list_versions_tool",
+    "mcp__redmine_epic_grid__list_user_stories_tool",
+    "mcp__redmine_epic_grid__list_statuses_tool",
+    "mcp__redmine_epic_grid__list_project_members_tool",
+    "mcp__redmine_epic_grid__get_project_structure_tool",
+}
+
 # ブロック時メッセージ
 BLOCK_MESSAGE_TEMPLATE = """\
 [ticket-tasuki] leader行動制約: ソースコード操作の制限
@@ -50,6 +64,22 @@ def main():
             sys.exit(0)
         else:
             reason = BLOCK_MESSAGE_TEMPLATE.format(tool_name=f"Bash ({command[:50]})")
+            output = {
+                "hookSpecificOutput": {
+                    "hookEventName": "PreToolUse",
+                    "permissionDecision": "deny",
+                    "permissionDecisionReason": reason,
+                }
+            }
+            print(json.dumps(output, ensure_ascii=False))
+            sys.exit(0)
+
+    # Redmineツール判定（許可リスト方式）
+    if tool_name.startswith(BLOCKED_REDMINE_PREFIX):
+        if tool_name in ALLOWED_REDMINE_TOOLS:
+            sys.exit(0)
+        else:
+            reason = BLOCK_MESSAGE_TEMPLATE.format(tool_name=tool_name)
             output = {
                 "hookSpecificOutput": {
                     "hookEventName": "PreToolUse",

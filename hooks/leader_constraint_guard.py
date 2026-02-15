@@ -22,8 +22,8 @@ BLOCK_MESSAGE_TEMPLATE = """\
 ━━━━━━━━━━━━━━━━━
 検出: {tool_name}
 対処:
-1. ソースコード操作はsubagentに委譲してください
-2. 調査→researcher、実装→coder、テスト→tester"""
+1. ソースコード操作はTeam-Agentに委譲してください
+2. 開発プロセス管理･チケット操作→PMO,調査→researcher、実装→coder、テスト→tester"""
 
 
 def main():

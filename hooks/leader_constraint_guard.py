@@ -34,6 +34,12 @@ def main():
         # 入力不正は無視して許可
         sys.exit(0)
 
+    # agent_nameフィルタ: leader以外のsubagentは素通し
+    agent_name = (input_data.get("agent_name") or "").strip()
+    if agent_name and "team-lead" not in agent_name:
+        # coder/tester/researcher等 → 制約対象外
+        sys.exit(0)
+
     tool_name = input_data.get("tool_name", "")
     tool_input = input_data.get("tool_input", {})
 

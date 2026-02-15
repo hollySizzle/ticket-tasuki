@@ -35,6 +35,24 @@ def main():
         sys.exit(0)
 
     tool_name = input_data.get("tool_name", "")
+    tool_input = input_data.get("tool_input", {})
+
+    # Bash特別判定: gitコマンドのみ許可
+    if tool_name == "Bash":
+        command = tool_input.get("command", "")
+        if command.strip().startswith("git"):
+            sys.exit(0)
+        else:
+            reason = BLOCK_MESSAGE_TEMPLATE.format(tool_name=f"Bash ({command[:50]})")
+            output = {
+                "hookSpecificOutput": {
+                    "hookEventName": "PreToolUse",
+                    "permissionDecision": "deny",
+                    "permissionDecisionReason": reason,
+                }
+            }
+            print(json.dumps(output, ensure_ascii=False))
+            sys.exit(0)
 
     # ブロック対象ツール判定（完全一致）
     is_blocked = tool_name in BLOCKED_TOOLS

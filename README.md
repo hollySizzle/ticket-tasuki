@@ -15,7 +15,8 @@ leader（メインエージェント）
   │
   ├── coder subagent → コード実装・単体テスト
   ├── tester subagent → 受入テスト・E2Eテスト
-  ├── scribe subagent → チケット読み取り
+  ├── pmo subagent（常駐） → ワークフロー相談・チケット管理・プロセス監査
+  ├── tech-lead subagent（常駐） → 設計レビュー・コード品質チェック
   ├── Explore subagent → コード調査
   └── general-purpose subagent → Web調査
 ```
@@ -127,7 +128,8 @@ cp -r .claude/my_plugins/ticket-tasuki/.claude-nagger/ .claude-nagger/
 agents/
   coder.md                       ← coder subagent（tools制限あり）
   tester.md                      ← tester subagent（Read/Bash/Glob/Grep）
-  scribe.md                      ← scribe subagent（Redmine MCPのみ）
+  pmo.md                         ← pmo subagent（常駐、チケットCRUD・監査）
+  tech-lead.md                   ← tech-lead subagent（常駐、読み取り専用）
 skills/
   tasuki-setup/SKILL.md          ← セットアップskill
   tasuki-delegate/SKILL.md       ← coder委譲skill
@@ -143,4 +145,5 @@ CLAUDE.md                        ← leader規約（ソフト制約）
 | leader | CLAUDE.md指示 | ソフト制約 |
 | coder | agents/coder.mdのtools: | 物理的制限 |
 | tester | agents/tester.mdのtools: | 物理的制限 |
-| scribe | agents/scribe.mdのtools: | 物理的制限 |
+| pmo | agents/pmo.mdのtools: | 物理的制限 |
+| tech-lead | agents/tech-lead.mdのtools: | 物理的制限 |

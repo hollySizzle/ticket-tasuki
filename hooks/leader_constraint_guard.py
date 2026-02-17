@@ -7,8 +7,12 @@ subagentへの委譲を強制する。
 Claude Code プラグインhook機構で ${CLAUDE_PLUGIN_ROOT}/hooks/leader_constraint_guard.py として呼び出される。
 """
 
+import datetime
 import json
 import sys
+
+# デバッグログファイルパス（調査用・一時的）
+_DEBUG_LOG = "/tmp/leader_guard_debug.log"
 
 # ブロック対象ツール（完全一致）
 BLOCKED_TOOLS = {
@@ -42,6 +46,15 @@ BLOCK_MESSAGE_TEMPLATE = """\
 2. 開発プロセス管理･チケット操作→PMO,調査→researcher、実装→coder、テスト→tester"""
 
 
+def _debug_log(msg):
+    """デバッグログ書き込み（調査用・一時的）"""
+    try:
+        with open(_DEBUG_LOG, "a") as f:
+            f.write(msg)
+    except Exception:
+        pass
+
+
 def main():
     """stdinからPreToolUse入力JSONを読み、判定結果をstdoutに出力する"""
     try:
@@ -50,10 +63,24 @@ def main():
         # 入力不正は無視して許可
         sys.exit(0)
 
+    # デバッグログ: 入力データ記録（調査用・一時的）
+    try:
+        debug_data = dict(input_data)
+        if "tool_input" in debug_data:
+            ti = str(debug_data["tool_input"])
+            debug_data["tool_input"] = ti[:200] + ("..." if len(ti) > 200 else "")
+        with open(_DEBUG_LOG, "a") as f:
+            f.write(f"\n--- {datetime.datetime.now().isoformat()} ---\n")
+            f.write(f"keys: {list(input_data.keys())}\n")
+            f.write(json.dumps(debug_data, ensure_ascii=False, indent=2) + "\n")
+    except Exception:
+        pass
+
     # agent_nameフィルタ: leader以外のsubagentは素通し
     agent_name = (input_data.get("agent_name") or "").strip()
     if agent_name and "team-lead" not in agent_name:
         # coder/tester/researcher等 → 制約対象外
+        _debug_log("RESULT: allow (reason: non-leader agent)\n")
         sys.exit(0)
 
     tool_name = input_data.get("tool_name", "")
@@ -63,6 +90,7 @@ def main():
     if tool_name == "Bash":
         command = tool_input.get("command", "")
         if command.strip().startswith("git"):
+            _debug_log("RESULT: allow (reason: Bash git command)\n")
             sys.exit(0)
         else:
             reason = BLOCK_MESSAGE_TEMPLATE.format(tool_name=f"Bash ({command[:50]})")
@@ -73,12 +101,14 @@ def main():
                     "permissionDecisionReason": reason,
                 }
             }
+            _debug_log(f"RESULT: deny (reason: Bash non-git command: {command[:50]})\n")
             print(json.dumps(output, ensure_ascii=False))
             sys.exit(0)
 
     # Redmineツール判定（許可リスト方式）
     if tool_name.startswith(BLOCKED_REDMINE_PREFIX):
         if tool_name in ALLOWED_REDMINE_TOOLS:
+            _debug_log(f"RESULT: allow (reason: Redmine allowed tool: {tool_name})\n")
             sys.exit(0)
         else:
             reason = BLOCK_MESSAGE_TEMPLATE.format(tool_name=tool_name)
@@ -89,6 +119,7 @@ def main():
                     "permissionDecisionReason": reason,
                 }
             }
+            _debug_log(f"RESULT: deny (reason: Redmine blocked tool: {tool_name})\n")
             print(json.dumps(output, ensure_ascii=False))
             sys.exit(0)
 
@@ -103,6 +134,7 @@ def main():
                 break
 
     if not is_blocked:
+        _debug_log(f"RESULT: allow (reason: not blocked tool: {tool_name})\n")
         sys.exit(0)
 
     # ブロック: deny で物理的ブロック
@@ -114,6 +146,7 @@ def main():
             "permissionDecisionReason": reason,
         }
     }
+    _debug_log(f"RESULT: deny (reason: blocked tool: {tool_name})\n")
     print(json.dumps(output, ensure_ascii=False))
     sys.exit(0)
 

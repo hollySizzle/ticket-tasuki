@@ -15,9 +15,7 @@ import sys
 _DEBUG_LOG = "/tmp/leader_guard_debug.log"
 
 # ブロック対象ツール（完全一致）
-BLOCKED_TOOLS = {
-    # "Read", "Edit", "Write", "Grep", "Glob", "MultiEdit"
-    }
+BLOCKED_TOOLS = {"Read", "Edit", "Write", "Grep", "Glob", "MultiEdit"}
 
 # ブロック対象MCPプレフィックス
 BLOCKED_MCP_PREFIXES = ("mcp__serena__",)
@@ -76,11 +74,11 @@ def main():
     except Exception:
         pass
 
-    # agent_nameフィルタ: leader以外のsubagentは素通し
-    agent_name = (input_data.get("agent_name") or "").strip()
-    if agent_name and "team-lead" not in agent_name:
-        # coder/tester/researcher等 → 制約対象外
-        _debug_log("RESULT: allow (reason: non-leader agent)\n")
+    # agent_contextフィルタ: subagentは制約対象外
+    # GitHub #21481 "Add agent context fields to hook inputs" 対応
+    agent_context = input_data.get("agent_context", "")
+    if agent_context == "subagent":
+        _debug_log(f"RESULT: allow (reason: agent_context=subagent, agent_id={input_data.get('agent_id', 'N/A')})\n")
         sys.exit(0)
 
     tool_name = input_data.get("tool_name", "")

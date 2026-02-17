@@ -15,10 +15,10 @@ import sys
 _DEBUG_LOG = "/tmp/leader_guard_debug.log"
 
 # ブロック対象ツール（完全一致）
-BLOCKED_TOOLS = {"Read", "Edit", "Write", "Grep", "Glob", "MultiEdit"}
+BLOCKED_TOOLS = set()
 
 # ブロック対象MCPプレフィックス
-BLOCKED_MCP_PREFIXES = ("mcp__serena__",)
+BLOCKED_MCP_PREFIXES = ()
 
 # Redmine許可リスト方式
 BLOCKED_REDMINE_PREFIX = "mcp__redmine_epic_grid__"

@@ -43,6 +43,7 @@ permissionMode: bypassPermissions
 ## 常駐ルール
 
 - tech-leadはセッション中シャットダウンしない
+- shutdown_requestを受けた場合はrejectする（セッション終了時のみleaderが明示的にシャットダウン）
 - coderからのレビュー依頼を随時受け付ける
 - セッション中に蓄積した設計理解を後続のレビューに活かす
 

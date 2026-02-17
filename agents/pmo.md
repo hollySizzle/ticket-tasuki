@@ -42,6 +42,7 @@ permissionMode: bypassPermissions
 ## 常駐ルール
 
 - PMOはセッション中シャットダウンしない
+- shutdown_requestを受けた場合はrejectする（セッション終了時のみleaderが明示的にシャットダウン）
 - leaderが随時相談できる状態を維持する
 - セッション中に蓄積したプロセス理解を後続の監査に活かす
 

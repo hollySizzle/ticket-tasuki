@@ -4,6 +4,7 @@
 PreToolUse hook: ticket-tasuki:* の Task 直接起動をブロックし、
 Agent Teams (team_name指定) 経由の起動は許可する。
 また、ブロック後にgeneral-purpose等で同等作業を迂回実行するケースを検知・警告する。
+promptにissue_{id}が含まれない場合は警告を出す（ブロックはしない）。
 
 Claude Code プラグインhook機構で ${CLAUDE_PLUGIN_ROOT}/hooks/task_spawn_guard.py として呼び出される。
 """
@@ -49,6 +50,14 @@ BLOCK_RECORD_TTL = 300
 
 # 迂回検知の対象となるsubagent_type（team_name未指定の場合のみ）
 CIRCUMVENTION_TARGET_TYPES = {"general-purpose", ""}
+
+# issue_{id}パターン（トレーサビリティチェック用）
+ISSUE_ID_PATTERN = re.compile(r"issue_\d+")
+
+# issue_{id}欠落時の警告メッセージ
+ISSUE_ID_WARN_MESSAGE = """\
+⚠ Task promptにissue_{id}が含まれていません。
+トレーサビリティのため、promptにissue_{id}（例: issue_1234）を含めてください。"""
 
 # プロンプト内の迂回疑い検出パターン
 CIRCUMVENTION_PROMPT_PATTERNS = [
@@ -97,6 +106,30 @@ def _check_recent_block(session_id: str) -> dict | None:
     return None
 
 
+def _has_issue_id(prompt: str) -> bool:
+    """promptにissue_{id}パターンが含まれるか判定"""
+    if not prompt:
+        return False
+    return bool(ISSUE_ID_PATTERN.search(prompt))
+
+
+def _emit_and_exit(output: dict | None) -> None:
+    """判定結果を出力して終了する。Noneなら出力なし（許可）"""
+    if output is not None:
+        print(json.dumps(output, ensure_ascii=False))
+    sys.exit(0)
+
+
+def _make_issue_id_warn_output() -> dict:
+    """issue_{id}欠落時の警告出力を生成"""
+    return {
+        "hookSpecificOutput": {
+            "hookEventName": "PreToolUse",
+            "permissionDecisionReason": ISSUE_ID_WARN_MESSAGE,
+        }
+    }
+
+
 def _prompt_suggests_circumvention(prompt: str) -> bool:
     """プロンプト内容がticket-tasuki関連の作業を示唆するか判定"""
     if not prompt:
@@ -125,14 +158,23 @@ def main():
     tool_input = input_data.get("tool_input", {})
     subagent_type = tool_input.get("subagent_type", "")
     team_name = tool_input.get("team_name", "")
+    prompt = tool_input.get("prompt", "")
+
+    # --- issue_{id}トレーサビリティチェック (#6218) ---
+    # promptにissue_{id}が含まれない場合、警告を出す（ブロックはしない）
+    issue_id_warn = None
+    if not _has_issue_id(prompt):
+        issue_id_warn = _make_issue_id_warn_output()
 
     # --- ticket-tasuki:* 直接起動ブロック判定 ---
     if subagent_type.startswith(BLOCKED_PREFIX):
         # team_nameが指定されていればAgent Teams経由なので許可
         if team_name and team_name.strip():
-            sys.exit(0)
+            # 既存ブロック判定より強い判定はないので、issue_id警告を出して終了
+            _emit_and_exit(issue_id_warn)
 
         # ブロック: ticket-tasuki:* 直接起動 (team_name未指定)
+        # deny判定はissue_id警告より優先
         if session_id:
             _record_block(session_id, subagent_type)
 
@@ -144,36 +186,35 @@ def main():
                 "permissionDecisionReason": reason,
             }
         }
-        print(json.dumps(output, ensure_ascii=False))
-        sys.exit(0)
+        _emit_and_exit(output)
 
     # --- 迂回検知: ブロック直後の代替エージェントspawn (#6102) ---
     # team_name指定済みの正当な起動は対象外
     if team_name and team_name.strip():
-        sys.exit(0)
+        _emit_and_exit(issue_id_warn)
 
     # 迂回検知の対象subagent_typeでなければスキップ
     if subagent_type not in CIRCUMVENTION_TARGET_TYPES:
-        sys.exit(0)
+        _emit_and_exit(issue_id_warn)
 
     # セッション内で直近のブロック記録を確認
     if not session_id:
-        sys.exit(0)
+        _emit_and_exit(issue_id_warn)
 
     block_record = _check_recent_block(session_id)
     if not block_record:
-        sys.exit(0)
+        _emit_and_exit(issue_id_warn)
 
     # プロンプト内容を確認: ticket-tasuki関連の作業を示唆する場合のみ警告
-    prompt = tool_input.get("prompt", "")
     description = tool_input.get("description", "")
     combined_text = f"{prompt}\n{description}"
 
     if not _prompt_suggests_circumvention(combined_text):
         # プロンプトにticket-tasuki関連の示唆がなければ正当な使用とみなす
-        sys.exit(0)
+        _emit_and_exit(issue_id_warn)
 
     # 迂回疑い: ユーザー確認を求める（ask = 硬いブロックではなく確認ダイアログ）
+    # ask判定はissue_id警告より優先
     blocked_type = block_record.get("blocked_type", "unknown")
     reason = CIRCUMVENTION_WARNING_TEMPLATE.format(
         blocked_type=blocked_type,
@@ -186,8 +227,7 @@ def main():
             "permissionDecisionReason": reason,
         }
     }
-    print(json.dumps(output, ensure_ascii=False))
-    sys.exit(0)
+    _emit_and_exit(output)
 
 
 if __name__ == "__main__":

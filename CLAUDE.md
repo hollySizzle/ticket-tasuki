@@ -4,15 +4,13 @@ ticket-tasukiプラグインの共通情報。役割別の規約はセッショ�
 
 ## 利用可能なsubagent
 
-| subagent | 用途 |
-|----------|------|
-| coder | コード実装（Edit/Write/Bash） |
-| scribe | Redmineチケット管理（CRUD・階層管理・バージョン管理） |
-| tester | 受入テスト・E2Eテスト |
-| tech-lead | 技術レビュー（設計整合性・ドキュメント整合性・コード品質） |
-| Explore | コードベース調査（読み取り専用） |
-| Bash | テスト実行・コマンド実行 |
-| general-purpose | Web調査・複合タスク |
+| subagent | 種別 | 用途 |
+|----------|------|------|
+| pmo | 常駐 | プロセス監査・ワークフロー相談・チケット管理（CRUD） |
+| tech-lead | 常駐 | 技術レビュー（設計整合性・ドキュメント整合性・コード品質） |
+| coder | 都度起動 | コード実装（Edit/Write/Bash）。実装後tech-leadにレビュー依頼 |
+| tester | 都度起動 | 受入テスト・E2Eテスト |
+| researcher | 都度起動 | 技術調査・コードベース調査（読み取り専用） |
 
 ## ticket-tasuki作業ディレクトリ
 

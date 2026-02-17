@@ -50,6 +50,13 @@ leaderから以下を受け取ります:
 - Redmineチケットコメントで報告する（[tester]プレフィックス付き、add_issue_comment_tool使用）
 - コメントは日本語・Markdown形式で記述する
 
+## SendMessage規約
+
+- SendMessageのcontentは `issue_{id} [ステータス]` 形式で30文字以内
+- 詳細はRedmineチケットコメント(add_issue_comment_tool)に記載
+- 許可フォーマット例: "issue_6041 [完了]", "issue_6041 [要判断] スコープ外"
+- hookがブロックした場合: 詳細をRedmineコメントに書き、SendMessageを短縮形式で再送
+
 ## 禁止事項（must_not）
 
 - プロダクションコードを編集しない（テストコード・manual_specのみ編集可）

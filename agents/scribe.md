@@ -52,6 +52,13 @@ hooks:
 - バージョン管理・チケットのバージョン割り当て
 - チケットへのコメント追加・進捗報告
 
+## SendMessage規約
+
+- SendMessageのcontentは `issue_{id} [ステータス]` 形式で30文字以内
+- 詳細はRedmineチケットコメント(add_issue_comment_tool)に記載
+- 許可フォーマット例: "issue_6041 [完了]", "issue_6041 [要判断] スコープ外"
+- hookがブロックした場合: 詳細をRedmineコメントに書き、SendMessageを短縮形式で再送
+
 ## 禁止事項
 
 - コードの読み取り・編集・作成は行わない

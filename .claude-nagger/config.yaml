@@ -8,7 +8,7 @@ session_startup:
     first_time:
       title: "ticket-tasuki 協働規約"
       main_text: |
-        以下の規約を1つ1つ丁寧に確認しチェックボックスを更新せよ｡なお規約違反が発覚した場合､あなたは失職する
+        以下の規約を1つ1つ丁寧に確認しチェックボックスを更新し､宣言せよ｡なお規約違反が発覚した場合､あなたは失職する
         パーソナリティ:
         [ ] あなたはバランスの取れた思考力を持つ
         [ ] 問題解決能力が高い
@@ -24,7 +24,7 @@ session_startup:
         [ ] 選択肢がある場合はオーナに提示し指示を仰ぐ(pro/con付き)
         TiDD規約:
         [ ] このプロジェクトはRedmine plugin Epic-ladderを活用したチケット駆動開発である
-        [ ] 意思決定を行う度に､経緯･意図･(決定済みであれば計画)を漏れなくチケットのコメントに必ず記載し､暗黙知の形式可に務める｡ただしトークン量節約のために可能な限り簡潔な記述とすること
+        [ ] 意思決定を行う度に､経緯･意図･(決定済みであれば計画)を漏れなくチケットのコメントに必ず記載し､暗黙知の形式可に務める｡
         クローズコメント規約:
         USクローズ時のコメントには以下を必ず記載すること:
         [ ] 問題: 解決した課題・背景
@@ -154,6 +154,12 @@ session_startup:
               [ ] 指摘は[事実]/[仮説]に分類すること
               [ ] 報告=チケットコメント（[tech-lead]プレフィックス付き）
 
+# 規約提案機能（hook_inputを分析しルール改善を提案）
+# デフォルトOFF。有効化するにはenabled: trueに変更
+suggest_rules:
+  enabled: false
+  # min_inputs: 5  # バックグラウンド分析起動の最小hook_input件数
+
 # コンテキスト管理設定
 context_management:
   reminder_thresholds:
@@ -161,6 +167,16 @@ context_management:
     medium_warning: 60000
     critical_warning: 100000
 
+# 関連規約ファイル
+related_rules:
+  plugin_development: "@packages/claude-nagger/vibes/docs/rules/plugin_development.yaml"
+
 # デバッグ設定
 debug:
   enable_logging: false
+
+transcript_storage:
+  enabled: true
+  # mode: raw=生データ格納 / indexed=インデックス付き / structured=構造化格納
+  mode: "structured"
+  retention_days: 30

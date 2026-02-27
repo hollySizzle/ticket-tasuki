@@ -58,13 +58,21 @@ claude --plugin-dir ./ticket-tasuki
 }
 ```
 
-### D. ローカルディレクトリをsettings.jsonで指定（開発用）
+### D. ローカルディレクトリをsettings.jsonで指定（カスタマイズ推奨）
 
-ローカルにcloneしたリポジトリを永続的に参照する場合:
+規約・agent定義・hookをプロジェクトに合わせてカスタマイズしたい場合はこの方法を推奨。
+
+方法A〜Cはプラグイン実体が `~/.claude/plugins/cache/` にコピーされるため、`claude plugin update` やcache clearで編集内容が失われる。この方法はローカルディレクトリを直接参照するため、上書きリスクがない。
+
+#### 手順
+
+1. リポジトリをclone:
 
 ```bash
 git clone https://github.com/hollySizzle/ticket-tasuki.git /path/to/ticket-tasuki
 ```
+
+2. `.claude/settings.json` に `directory` ソースを設定:
 
 ```json
 {
@@ -82,7 +90,21 @@ git clone https://github.com/hollySizzle/ticket-tasuki.git /path/to/ticket-tasuk
 }
 ```
 
-`--plugin-dir`（方法B）はセッション限りだが、この方法は設定に永続化される。`path`は絶対パスで指定すること。
+`path` は絶対パスで指定すること。
+
+3. 必要に応じてカスタマイズ:
+
+| カスタマイズ対象 | ファイル | 例 |
+|-----------------|---------|-----|
+| leader規約 | `CLAUDE.md` | ワークフロー変更・規約追加 |
+| coder制約 | `agents/coder.md` | tools許可リスト変更 |
+| tester制約 | `agents/tester.md` | テスト方針変更 |
+| pmo制約 | `agents/pmo.md` | 監査基準変更 |
+| tech-lead制約 | `agents/tech-lead.md` | レビュー基準変更 |
+| スキル | `skills/*/SKILL.md` | 委譲テンプレート変更 |
+| hook | `hooks/hooks.json` | ガードルール変更 |
+
+4. 変更はローカルgitで管理可能。上流の更新を取り込みたい場合は `git pull` で手動マージ。
 
 ## 依存
 

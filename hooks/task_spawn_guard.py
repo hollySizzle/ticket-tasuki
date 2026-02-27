@@ -1,25 +1,28 @@
 #!/usr/bin/env python3
 """ticket-tasuki Task spawn ガード (プラグインhook)
 
-PreToolUse hook: ticket-tasuki:* の Task 直接起動をブロックし、
-Agent Teams (team_name指定) 経由の起動は許可する。
-また、ブロック後にgeneral-purpose等で同等作業を迂回実行するケースを検知・警告する。
-promptにissue_{id}が含まれない場合は警告を出す（ブロックはしない）。
+PreToolUse hook:
+- ticket-tasuki:* の Task 直接起動をブロックし、Agent Teams (team_name指定) 経由の起動は許可する。
+- team_name未指定のTask spawnを原則ブロック（ビルトイン軽量エージェントは例外許可）。
+- promptにissue_{id}が含まれない場合はユーザー確認を要求する。
+
+設計思想: leaderのコンテキストウィンドウを守るため、ad-hoc Taskエージェントの起動を制限し、
+既存チームエージェント（tech-lead, PMO等）への委譲またはleader自身の直接実行を促す。
 
 Claude Code プラグインhook機構で ${CLAUDE_PLUGIN_ROOT}/hooks/task_spawn_guard.py として呼び出される。
 """
 
 import json
-import os
 import re
 import sys
-import tempfile
-import time
 
 # ブロック対象プレフィックス
 BLOCKED_PREFIX = "ticket-tasuki:"
 
-# ブロック時メッセージ (#6103: 迂回禁止を明記)
+# team_name不要で許可するsubagent_type（ビルトイン軽量エージェント）
+TEAM_EXEMPT_TYPES = {"Explore", "Plan", "Bash", "statusline-setup", "claude-code-guide"}
+
+# ブロック時メッセージ (ticket-tasuki:* 直接起動)
 BLOCK_MESSAGE_TEMPLATE = """\
 Task spawn規約: ticket-tasuki プラグインの直接起動禁止
 ━━━━━━━━━━━━━━━━━
@@ -32,24 +35,17 @@ Task spawn規約: ticket-tasuki プラグインの直接起動禁止
 同等の作業を実行することも禁止されています。
 必ず Agent Teams 経由で正規の手順に従ってください。"""
 
-# 迂回検知時の警告メッセージ
-CIRCUMVENTION_WARNING_TEMPLATE = """\
-⚠ 迂回検知: ticket-tasuki 直接起動ブロック直後の代替エージェント起動
+# team_name未指定ブロック時のメッセージ
+NO_TEAM_BLOCK_TEMPLATE = """\
+Task spawn規約: team_name未指定のTask spawn制限
 ━━━━━━━━━━━━━━━━━
-直前にブロックされた subagent_type: "{blocked_type}"
-現在の subagent_type: "{current_type}"
+検出: subagent_type="{subagent_type}" (team_name未指定)
+対処:
+1. Agent Teams (team_name指定) 経由で起動してください
+2. 常駐エージェント (tech-lead, PMO等) にSendMessageで委譲してください
+3. 1-3ツールコールで済む作業はleader自身で直接実行してください
 
-ticket-tasuki:* のブロック後に、general-purpose 等の代替エージェントで
-同等の作業を実行することは禁止されています。
-Agent Teams（team_name指定）経由で正規の手順に従ってください。
-
-この起動が ticket-tasuki と無関係な正当な目的であれば許可してください。"""
-
-# ブロック記録の有効期間（秒）: ブロック後この時間内の代替spawn を検知
-BLOCK_RECORD_TTL = 300
-
-# 迂回検知の対象となるsubagent_type（team_name未指定の場合のみ）
-CIRCUMVENTION_TARGET_TYPES = {"general-purpose", ""}
+⚠ team_name不要のエージェント: Explore, Plan, Bash のみ"""
 
 # issue_{id}パターン（トレーサビリティチェック用）
 ISSUE_ID_PATTERN = re.compile(r"issue_\d+")
@@ -58,52 +54,6 @@ ISSUE_ID_PATTERN = re.compile(r"issue_\d+")
 ISSUE_ID_WARN_MESSAGE = """\
 ⚠ Task promptにissue_{id}が含まれていません。
 トレーサビリティのため、promptにissue_{id}（例: issue_1234）を含めてください。"""
-
-# プロンプト内の迂回疑い検出パターン
-CIRCUMVENTION_PROMPT_PATTERNS = [
-    r"ticket[-_]?tasuki",
-    r"redmine",
-    r"チケット.{0,10}(管理|操作|作成|更新|起票|コメント)",
-    r"issue.{0,10}(create|update|comment|assign|status)",
-    r"(起票|コメント追記|ステータス変更|チケット更新)",
-]
-
-
-def _get_block_record_path(session_id: str) -> str:
-    """セッション固有のブロック記録ファイルパスを返す"""
-    return os.path.join(
-        tempfile.gettempdir(),
-        f"task_spawn_guard_block_{session_id}.json",
-    )
-
-
-def _record_block(session_id: str, subagent_type: str) -> None:
-    """ブロック発生を記録する"""
-    path = _get_block_record_path(session_id)
-    record = {
-        "blocked_type": subagent_type,
-        "blocked_at": time.time(),
-        "session_id": session_id,
-    }
-    try:
-        with open(path, "w") as f:
-            json.dump(record, f)
-    except OSError:
-        pass  # 記録失敗は無視（ガードの主機能に影響しない）
-
-
-def _check_recent_block(session_id: str) -> dict | None:
-    """直近のブロック記録を確認。TTL超過または存在しなければNoneを返す"""
-    path = _get_block_record_path(session_id)
-    try:
-        with open(path) as f:
-            record = json.load(f)
-        blocked_at = record.get("blocked_at", 0)
-        if time.time() - blocked_at <= BLOCK_RECORD_TTL:
-            return record
-    except (OSError, json.JSONDecodeError, KeyError):
-        pass
-    return None
 
 
 def _has_issue_id(prompt: str) -> bool:
@@ -121,24 +71,14 @@ def _emit_and_exit(output: dict | None) -> None:
 
 
 def _make_issue_id_warn_output() -> dict:
-    """issue_{id}欠落時の警告出力を生成"""
+    """issue_{id}欠落時の警告出力を生成（ユーザー確認要求）"""
     return {
         "hookSpecificOutput": {
             "hookEventName": "PreToolUse",
+            "permissionDecision": "ask",
             "permissionDecisionReason": ISSUE_ID_WARN_MESSAGE,
         }
     }
-
-
-def _prompt_suggests_circumvention(prompt: str) -> bool:
-    """プロンプト内容がticket-tasuki関連の作業を示唆するか判定"""
-    if not prompt:
-        return False
-    prompt_lower = prompt.lower()
-    for pattern in CIRCUMVENTION_PROMPT_PATTERNS:
-        if re.search(pattern, prompt_lower, re.IGNORECASE):
-            return True
-    return False
 
 
 def main():
@@ -154,30 +94,22 @@ def main():
         # Task以外は対象外
         sys.exit(0)
 
-    session_id = input_data.get("session_id", "")
     tool_input = input_data.get("tool_input", {})
     subagent_type = tool_input.get("subagent_type", "")
     team_name = tool_input.get("team_name", "")
     prompt = tool_input.get("prompt", "")
 
-    # --- issue_{id}トレーサビリティチェック (#6218) ---
-    # promptにissue_{id}が含まれない場合、警告を出す（ブロックはしない）
+    # --- issue_{id}トレーサビリティチェック ---
     issue_id_warn = None
     if not _has_issue_id(prompt):
         issue_id_warn = _make_issue_id_warn_output()
 
-    # --- ticket-tasuki:* 直接起動ブロック判定 ---
+    # --- ticket-tasuki:* 直接起動ブロック ---
     if subagent_type.startswith(BLOCKED_PREFIX):
-        # team_nameが指定されていればAgent Teams経由なので許可
         if team_name and team_name.strip():
-            # 既存ブロック判定より強い判定はないので、issue_id警告を出して終了
             _emit_and_exit(issue_id_warn)
 
-        # ブロック: ticket-tasuki:* 直接起動 (team_name未指定)
         # deny判定はissue_id警告より優先
-        if session_id:
-            _record_block(session_id, subagent_type)
-
         reason = BLOCK_MESSAGE_TEMPLATE.format(subagent_type=subagent_type)
         output = {
             "hookSpecificOutput": {
@@ -188,42 +120,23 @@ def main():
         }
         _emit_and_exit(output)
 
-    # --- 迂回検知: ブロック直後の代替エージェントspawn (#6102) ---
-    # team_name指定済みの正当な起動は対象外
+    # --- team_name指定あり → 許可 ---
     if team_name and team_name.strip():
         _emit_and_exit(issue_id_warn)
 
-    # 迂回検知の対象subagent_typeでなければスキップ
-    if subagent_type not in CIRCUMVENTION_TARGET_TYPES:
+    # --- ビルトイン軽量エージェント → team_name不要で許可 ---
+    if subagent_type in TEAM_EXEMPT_TYPES:
         _emit_and_exit(issue_id_warn)
 
-    # セッション内で直近のブロック記録を確認
-    if not session_id:
-        _emit_and_exit(issue_id_warn)
-
-    block_record = _check_recent_block(session_id)
-    if not block_record:
-        _emit_and_exit(issue_id_warn)
-
-    # プロンプト内容を確認: ticket-tasuki関連の作業を示唆する場合のみ警告
-    description = tool_input.get("description", "")
-    combined_text = f"{prompt}\n{description}"
-
-    if not _prompt_suggests_circumvention(combined_text):
-        # プロンプトにticket-tasuki関連の示唆がなければ正当な使用とみなす
-        _emit_and_exit(issue_id_warn)
-
-    # 迂回疑い: ユーザー確認を求める（ask = 硬いブロックではなく確認ダイアログ）
-    # ask判定はissue_id警告より優先
-    blocked_type = block_record.get("blocked_type", "unknown")
-    reason = CIRCUMVENTION_WARNING_TEMPLATE.format(
-        blocked_type=blocked_type,
-        current_type=subagent_type or "(未指定)",
+    # --- team_name未指定 + 非ホワイトリスト → ブロック ---
+    # deny判定はissue_id警告より優先
+    reason = NO_TEAM_BLOCK_TEMPLATE.format(
+        subagent_type=subagent_type or "(未指定)"
     )
     output = {
         "hookSpecificOutput": {
             "hookEventName": "PreToolUse",
-            "permissionDecision": "ask",
+            "permissionDecision": "deny",
             "permissionDecisionReason": reason,
         }
     }

@@ -40,7 +40,7 @@ git clone https://github.com/hollySizzle/ticket-tasuki.git
 claude --plugin-dir ./ticket-tasuki
 ```
 
-### C. プロジェクトのsettings.jsonに直接設定
+### C. プロジェクトのsettings.jsonに直接設定（GitHub）
 
 ```json
 {
@@ -57,6 +57,32 @@ claude --plugin-dir ./ticket-tasuki
   }
 }
 ```
+
+### D. ローカルディレクトリをsettings.jsonで指定（開発用）
+
+ローカルにcloneしたリポジトリを永続的に参照する場合:
+
+```bash
+git clone https://github.com/hollySizzle/ticket-tasuki.git /path/to/ticket-tasuki
+```
+
+```json
+{
+  "extraKnownMarketplaces": {
+    "ticket-tasuki": {
+      "source": {
+        "source": "directory",
+        "path": "/path/to/ticket-tasuki"
+      }
+    }
+  },
+  "enabledPlugins": {
+    "ticket-tasuki@ticket-tasuki": true
+  }
+}
+```
+
+`--plugin-dir`（方法B）はセッション限りだが、この方法は設定に永続化される。`path`は絶対パスで指定すること。
 
 ## 依存
 

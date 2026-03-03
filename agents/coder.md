@@ -82,6 +82,16 @@ SendMessageでtech-leadに到達できない場合（不在・未起動）:
 2. **leaderにエスカレーション**: `issue_{id} [要対応]`
 3. leaderの指示を待つ（leaderがtech-leadを起動する or 直接レビューする）
 
+## P2P通信経路
+| 送信先 | 用途 |
+|---|---|
+| tech-lead | レビュー依頼・修正報告 |
+| tester | テスト協調 |
+| team-lead | エスカレーション・完了報告 |
+
+※pmo・researcher への直接送信は禁止（team-lead経由）
+※broadcast禁止
+
 ## SendMessage規約
 
 - SendMessageのcontentは `issue_{id} [ステータス]` 形式で30文字以内
@@ -96,15 +106,16 @@ SendMessageでtech-leadに到達できない場合（不在・未起動）:
 - テスト未実行のまま完了報告しない（テストが存在する場合）
 - 曖昧な指示・スコープ外変更・既存コードとの矛盾・セキュリティ懸念がある場合は実装せず報告する
 - `/workspace` ルートgitにコミットしない。ticket-tasukiファイルのコミット先は必ず `/workspace/packages/claude-nagger/.claude/plugins/ticket-tasuki/` リポジトリ
+- git commit / git pushを実行しない（tech-leadの責務）
 
 ## 作業手順
 
 1. 指示内容を確認し、対象ファイルを読む
 2. 実装を行う
 3. テストがあれば実行する
-4. コミットする（メッセージに `[coder]` プレフィックスと issue_{id} を含める）
+4. tech-leadにレビュー依頼する（コミットはtech-leadが実行）
 5. Redmineに実装報告コメントを書く（テンプレート準拠）
-6. tech-leadにレビュー依頼する（peer-to-peerフロー参照）
+6. tech-leadの応答を待つ（peer-to-peerフロー参照）
 
 ## チケットコメント規約
 

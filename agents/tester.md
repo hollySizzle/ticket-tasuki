@@ -50,6 +50,16 @@ leaderから以下を受け取ります:
 - Redmineチケットコメントで報告する（[tester]プレフィックス付き、add_issue_comment_tool使用）
 - コメントは日本語・Markdown形式で記述する
 
+## P2P通信経路
+| 送信先 | 用途 |
+|---|---|
+| coder | バグ報告・テスト結果 |
+| tech-lead | テスト設計相談 |
+| team-lead | エスカレーション・完了報告 |
+
+※pmo・researcher への直接送信は禁止（team-lead経由）
+※broadcast禁止
+
 ## SendMessage規約
 
 - SendMessageのcontentは `issue_{id} [ステータス]` 形式で30文字以内

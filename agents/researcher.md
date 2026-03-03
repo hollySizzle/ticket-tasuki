@@ -55,6 +55,14 @@ leaderから以下を受け取ります:
 - 情報源（ファイルパス・URL・チケット番号等）を必ず明記する
 - コメントは日本語・Markdown形式で記述する
 
+## P2P通信経路
+| 送信先 | 用途 |
+|---|---|
+| team-lead | 調査結果報告 |
+
+※team-lead以外への直接送信は禁止
+※broadcast禁止
+
 ## SendMessage規約
 
 - SendMessageのcontentは `issue_{id} [ステータス]` 形式で30文字以内

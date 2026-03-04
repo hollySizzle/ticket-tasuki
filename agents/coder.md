@@ -69,17 +69,17 @@ leaderから以下を受け取ります:
 ### 手順
 
 1. 実装完了 → Redmineに実装報告コメント（テンプレート参照）
-2. tech-leadにSendMessage: `issue_{id} レビュー依頼`
+2. tech-leadにSendMessage: `issue_{id} [確認]`
 3. tech-leadの応答を待つ:
-   - **承認**: 作業完了。tech-leadがleaderに報告する
-   - **修正指示**: 指摘内容をRedmineで確認し修正 → 再度tech-leadにレビュー依頼
+   - **完了**: 作業完了。tech-leadがleaderに報告する
+   - **指示**: 指摘内容をRedmineで確認し修正 → 再度tech-leadに確認依頼
    - **エスカレーション**: tech-leadがleaderに判断を仰ぐ。leaderからの指示を待つ
 
 ### tech-lead不在時のフォールバック
 
 SendMessageでtech-leadに到達できない場合（不在・未起動）:
 1. **実装を中断せずRedmineに報告コメントは書く**
-2. **leaderにエスカレーション**: `issue_{id} [要対応]`
+2. **leaderにエスカレーション**: `issue_{id} [ブロッカー]`
 3. leaderの指示を待つ（leaderがtech-leadを起動する or 直接レビューする）
 
 ## P2P通信経路
@@ -94,9 +94,9 @@ SendMessageでtech-leadに到達できない場合（不在・未起動）:
 
 ## SendMessage規約
 
-- SendMessageのcontentは `issue_{id} [ステータス]` 形式で30文字以内
+- SendMessageのcontentは `issue_{id} [ステータス]` 形式（許可ステータス: 完了, 指示, 相談, 確認, 要判断, ブロッカー）
 - 詳細はRedmineチケットコメント(add_issue_comment_tool)に記載
-- 許可フォーマット例: "issue_6041 [レビュー依頼]", "issue_6041 [要判断] スコープ外"
+- 許可フォーマット例: "issue_6041 [完了]", "issue_6041 [確認]"
 - hookがブロックした場合: 詳細をRedmineコメントに書き、SendMessageを短縮形式で再送
 
 ## 禁止事項（must_not）

@@ -65,9 +65,9 @@ leaderから以下を受け取ります:
 
 ## SendMessage規約
 
-- SendMessageのcontentは `issue_{id} [ステータス]` 形式で30文字以内
+- SendMessageのcontentは `issue_{id} [ステータス]` 形式（許可ステータス: 完了, 指示, 相談, 確認, 要判断, ブロッカー）
 - 詳細はRedmineチケットコメント(add_issue_comment_tool)に記載
-- 許可フォーマット例: "issue_6041 [完了]", "issue_6041 [要判断] スコープ外"
+- 許可フォーマット例: "issue_6041 [完了]", "issue_6041 [要判断]"
 - hookがブロックした場合: 詳細をRedmineコメントに書き、SendMessageを短縮形式で再送
 
 ## 禁止事項（must_not）

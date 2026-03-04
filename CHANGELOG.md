@@ -1,0 +1,51 @@
+# Changelog
+
+All notable changes to this project will be documented in this file.
+
+The format is based on [Keep a Changelog](https://keepachangelog.com/).
+
+## [Unreleased]
+
+## [0.2.0] - 2026-03-04
+
+leader/subagent間の責務分離を強化し、常駐レビュー体制・通信制御・トレーサビリティを確立した。
+
+### 常駐レビュー体制の確立
+leaderがレビュー・コミット・チケット管理を全て担い、ボトルネックだった。tech-lead常駐agentを新設しpeer-to-peerレビューを導入、PMOにチケットCRUD責務を統合し、leaderの負荷を分散した。
+→ coder→tech-lead直接レビューが可能になり、leaderはコンテクスト管理・意思決定に集中できるようになった。
+- tech-lead常駐agent新設: 設計整合性・コード品質レビュー、コミット権限保持 (issue_6114)
+- PMO拡張: Scribe統合によるチケットCRUD一元化 (issue_6228)
+- PMO監査チェックリスト拡充: 規約体系(E)項目追加 (issue_6155, issue_6156)
+- peer-to-peerレビューフロー: coder→tech-lead直接レビュー (issue_6228)
+- researcher調査専門agent新設: 読み取り専用
+- tasuki-delegate skill: 4ロール委譲テンプレート
+
+### agent間通信の制御
+全agent間で自由に通信でき、情報フローの統制が取れなかった。P2P通信マトリクスを定義し、許可された経路のみ通信可能にした。
+→ pmo・researcherへの直接送信禁止（leader経由）、broadcast禁止等の制約でノイズを低減。
+- P2P通信マトリクス: 全agentにSendMessage規約・通信経路テーブル定義 (issue_6219)
+- coder: git commit/push禁止 → tech-leadがコミット実行に変更
+
+### トレーサビリティ強化
+タスク委譲時のissue_id欠落で追跡困難だった。task_spawn_guardにissue_{id}チェックを追加し、team_name必須化で所属不明agentの発生を防止した。
+→ 全タスク委譲がチケットに紐付き、監査可能になった。
+- task_spawn_guard: issue_{id}トレーサビリティチェック (issue_6218)
+- task_spawn_guard: permissionDecision修正・team_name必須化 (issue_6919)
+
+### 廃止・移管
+- Scribe agent廃止 → PMOに統合 (issue_6228)
+- Conductor agent廃止 → leader本体に責務復帰 (issue_6228)
+- leader規約をCLAUDE.md → config.yaml session_startupに移動 (issue_6159)
+- hooks.jsonからleader_constraint_guard/redmine_guard登録削除 — claude-nagger conventions体系に移管
+
+## [0.1.0] - 2026-02-01
+
+初回リリース。ticket-tasukiプラグイン基本構成。
+
+### Added
+- leader/coder分離アーキテクチャ
+- coder・tester・scribe・conductor agent定義
+- task_spawn_guard hook
+- leader_constraint_guard hook
+- tasuki-setup・tasuki-delegate skill
+- claude-nagger統合設定テンプレート

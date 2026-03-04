@@ -41,17 +41,6 @@ session_startup:
             title: "Bash subagent規約"
             main_text: |
               [ ] 破壊的コマンド禁止
-      scribe:
-        messages:
-          first_time:
-            title: "scribe subagent規約"
-            main_text: |
-              基本規約:
-              [ ] 指定された操作のみ行うこと
-              [ ] スコープ外の操作は行わないこと
-              報告規約:
-              [ ] 作業完了後に結果を報告すること
-              [ ] コメント冒頭に [scribe] プレフィックスを付けること
       tester:
         messages:
           first_time:
@@ -77,14 +66,6 @@ session_startup:
               報告規約:
               [ ] 完了時に変更内容・懸念事項を報告すること
               [ ] コメント冒頭に [coder] プレフィックスを付けること
-      conductor:
-        messages:
-          first_time:
-            title: "conductor subagent規約"
-            main_text: |
-              [ ] 直接作業を実行しないこと（コード編集・ファイル操作禁止）
-              [ ] 実作業はSubAgent（coder/tester/scribe）へ委譲すること
-              [ ] SubAgentの成果物を必ずレビューすること
 
 # SendMessageガード設定（Redmine基盤通信強制）
 # 毎回検査。違反時のみblock、合格時は無通知通過

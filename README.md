@@ -195,3 +195,16 @@ CLAUDE.md                        ← leader規約（ソフト制約）
 | tester | agents/tester.mdのtools: | 物理的制限 |
 | pmo | agents/pmo.mdのtools: | 物理的制限 |
 | tech-lead | agents/tech-lead.mdのtools: | 物理的制限 |
+
+## Claude Code公式機能との使い分け
+
+Claude Code本体のagent frontmatter（`tools`, `disallowedTools`, frontmatter hooks）でもsubagentのツール制限は可能です。**ticket-tasukiはこれらの公式機能を活用しつつ、公式だけでは不足する以下を補完します。**
+
+| 機能 | 公式 agent frontmatter | ticket-tasuki (+claude-nagger) |
+|------|----------------------|-------------------------------|
+| subagentのツール制限 | `tools`/`disallowedTools`で静的に定義可能 | 公式機能をそのまま利用（agents/*.mdで定義済み） |
+| leader（メインagent）のツール制限 | **不可** — CLAUDE.mdはソフト制約のみ | claude-naggerのconventions deny/scopeで技術的に強制 |
+| role別の規約通知 | **不可** | session_startup hookでrole別にブロッキング通知 |
+| agent間通信の経路制御 | **不可** | SendMessageGuardでP2P通信マトリクスを強制 |
+| タスク委譲のトレーサビリティ | **不可** | task_spawn_guardでissue_id・team_name必須化 |
+| 常駐agentによるレビュー体制 | agent定義自体は可能だが、レビューフローの強制手段なし | tech-lead/PMO常駐 + coder→tech-lead直接レビューフロー |

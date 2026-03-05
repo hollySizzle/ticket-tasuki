@@ -6,6 +6,11 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/).
 
 ## [Unreleased]
 
+### セッション安定性の改善
+leader起動直後にチーム残骸（前セッションの未クリーンアップTeam）が残存し、subagent起動に失敗するケースがあった。チーム残骸の自動削除とleader除外パターンを追加した。
+→ セッション開始時の安定性が向上し、手動クリーンアップが不要になった。
+- チーム残骸自動削除・leader除外パターン追加 (issue_7435)
+
 ## [0.2.0] - 2026-03-04
 
 leader/subagent間の責務分離を強化し、常駐レビュー体制・通信制御・トレーサビリティを確立した。

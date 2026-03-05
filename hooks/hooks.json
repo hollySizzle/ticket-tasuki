@@ -1,5 +1,5 @@
 {
-  "description": "ticket-tasuki plugin hooks: Task spawn guard only",
+  "description": "ticket-tasuki plugin hooks: Task spawn guard + session cleanup",
   "hooks": {
     "PreToolUse": [
       {
@@ -9,6 +9,17 @@
             "type": "command",
             "command": "python3 \"${CLAUDE_PLUGIN_ROOT}/hooks/task_spawn_guard.py\"",
             "timeout": 10
+          }
+        ]
+      }
+    ],
+    "SessionStart": [
+      {
+        "matcher": "startup",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "python3 \"${CLAUDE_PLUGIN_ROOT}/hooks/session_cleanup.py\""
           }
         ]
       }

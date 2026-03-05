@@ -84,11 +84,15 @@ def main():
     tool_name = input_data.get("tool_name", "")
     tool_input = input_data.get("tool_input", {})
 
-    # Bash特別判定: gitコマンドのみ許可
+    # Bash特別判定: gitコマンドおよびチーム残骸削除コマンドのみ許可
     if tool_name == "Bash":
         command = tool_input.get("command", "")
         if command.strip().startswith("git"):
             _debug_log("RESULT: allow (reason: Bash git command)\n")
+            sys.exit(0)
+        # チーム残骸削除の除外パターン: rm -rf で .claude/teams/ または .claude/tasks/ を含む場合は許可
+        if "rm " in command and ("/.claude/teams/" in command or "/.claude/tasks/" in command):
+            _debug_log(f"RESULT: allow (reason: Bash team/task cleanup: {command[:80]})\n")
             sys.exit(0)
         else:
             reason = BLOCK_MESSAGE_TEMPLATE.format(tool_name=f"Bash ({command[:50]})")

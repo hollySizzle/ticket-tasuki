@@ -16,7 +16,7 @@ import sys
 # team_name不要で許可するsubagent_type（ビルトイン軽量エージェント）
 BUILTIN_WHITELIST = {
     "Explore", "Plan", "Bash",
-    "statusline-setup", "claude-code-guide", "general-purpose",
+    "statusline-setup", "claude-code-guide",
 }
 
 # ブロック時メッセージ

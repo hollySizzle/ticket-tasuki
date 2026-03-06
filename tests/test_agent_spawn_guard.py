@@ -104,14 +104,23 @@ class TestAgentSpawnGuardAllow:
         assert result.returncode == 0
         assert _get_decision(result) is None
 
-    def test_general_purpose_allowed(self):
-        """Agent + subagent_type="general-purpose" → 許可"""
+    def test_general_purpose_denied(self):
+        """Agent + subagent_type="general-purpose" → deny（task_spawn_guard迂回防止）"""
         result = _run_guard({
             "tool_name": "Agent",
             "tool_input": {"subagent_type": "general-purpose"},
         })
         assert result.returncode == 0
-        assert _get_decision(result) is None
+        assert _get_decision(result) == "deny"
+
+    def test_empty_subagent_type_denied(self):
+        """Agent + subagent_type="" → deny"""
+        result = _run_guard({
+            "tool_name": "Agent",
+            "tool_input": {"subagent_type": ""},
+        })
+        assert result.returncode == 0
+        assert _get_decision(result) == "deny"
 
     def test_subagent_context_bypasses(self):
         """Agent + agent_context="subagent" → 対象外（どのsubagent_typeでも許可）"""

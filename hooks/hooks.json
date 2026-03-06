@@ -1,5 +1,5 @@
 {
-  "description": "ticket-tasuki plugin hooks: Task spawn guard + session cleanup",
+  "description": "ticket-tasuki plugin hooks: Task spawn guard + Agent spawn guard + session cleanup",
   "hooks": {
     "PreToolUse": [
       {

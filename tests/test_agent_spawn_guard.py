@@ -5,8 +5,10 @@ subprocess.runで実スクリプトを呼び出し、判定結果を検証する
 """
 
 import json
+import os
 import subprocess
 import sys
+import tempfile
 from pathlib import Path
 
 import pytest
@@ -16,7 +18,7 @@ SCRIPT_PATH = str(
 )
 
 
-def _run_guard(input_data: dict) -> subprocess.CompletedProcess:
+def _run_guard(input_data: dict, env: dict | None = None) -> subprocess.CompletedProcess:
     """ガードスクリプトを実行し結果を返す"""
     return subprocess.run(
         [sys.executable, SCRIPT_PATH],
@@ -24,6 +26,7 @@ def _run_guard(input_data: dict) -> subprocess.CompletedProcess:
         capture_output=True,
         text=True,
         timeout=10,
+        env=env,
     )
 
 
@@ -95,14 +98,14 @@ class TestAgentSpawnGuardAllow:
         assert result.returncode == 0
         assert _get_decision(result) is None
 
-    def test_bash_allowed(self):
-        """Agent + subagent_type="Bash" → 許可"""
+    def test_bash_denied(self):
+        """Agent + subagent_type="Bash" → deny（ホワイトリスト外）"""
         result = _run_guard({
             "tool_name": "Agent",
             "tool_input": {"subagent_type": "Bash"},
         })
         assert result.returncode == 0
-        assert _get_decision(result) is None
+        assert _get_decision(result) == "deny"
 
     def test_general_purpose_denied(self):
         """Agent + subagent_type="general-purpose" → deny（task_spawn_guard迂回防止）"""
@@ -141,14 +144,33 @@ class TestAgentSpawnGuardAllow:
         assert result.returncode == 0
         assert _get_decision(result) is None
 
-    def test_team_name_allows(self):
-        """Agent + team_name指定あり → 許可（team agent経由）"""
+    def test_team_name_allows(self, tmp_path):
+        """Agent + team_name指定あり＋config.json実在 → 許可"""
+        # config.jsonを配置した仮HOMEを作成
+        config_dir = tmp_path / ".claude" / "teams" / "dev-team"
+        config_dir.mkdir(parents=True)
+        (config_dir / "config.json").write_text("{}")
+        env = {**os.environ, "HOME": str(tmp_path)}
+
         result = _run_guard({
             "tool_name": "Agent",
             "tool_input": {
                 "subagent_type": "coder",
                 "team_name": "dev-team",
             },
-        })
+        }, env=env)
         assert result.returncode == 0
         assert _get_decision(result) is None
+
+    def test_fake_team_name_denied(self):
+        """Agent + team_name指定あり＋config.json不在 → deny（偽装対策）"""
+        env = {**os.environ, "HOME": tempfile.mkdtemp()}
+        result = _run_guard({
+            "tool_name": "Agent",
+            "tool_input": {
+                "subagent_type": "coder",
+                "team_name": "fake-team",
+            },
+        }, env=env)
+        assert result.returncode == 0
+        assert _get_decision(result) == "deny"

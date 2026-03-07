@@ -111,11 +111,11 @@ git clone https://github.com/hollySizzle/ticket-tasuki.git /path/to/ticket-tasuk
 - **必須**: Claude Code、redmine-epic-grid MCP
 - **推奨**: claude-nagger
 
-## claude-naggarセットアップ（任意）
+## claude-naggerセットアップ（任意）
 
-ticket-tasukiはclaude-naggarなしでも動作しますが、併用するとleader規約の通知・subagent別の規約ガードレールが有効になります。
+ticket-tasukiはclaude-naggerなしでも動作しますが、併用するとleader規約の通知・subagent別の規約ガードレールが有効になります。
 
-### 1. claude-naggarのインストール
+### 1. claude-naggerのインストール
 
 ```bash
 pip install claude-nagger

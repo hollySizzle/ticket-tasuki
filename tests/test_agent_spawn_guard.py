@@ -84,7 +84,7 @@ class TestAgentSpawnGuardAllow:
         """Agent + subagent_type="Explore" → 許可"""
         result = _run_guard({
             "tool_name": "Agent",
-            "tool_input": {"subagent_type": "Explore"},
+            "tool_input": {"subagent_type": "Explore", "prompt": "issue_1234 explore"},
         })
         assert result.returncode == 0
         assert _get_decision(result) is None
@@ -93,7 +93,7 @@ class TestAgentSpawnGuardAllow:
         """Agent + subagent_type="Plan" → 許可"""
         result = _run_guard({
             "tool_name": "Agent",
-            "tool_input": {"subagent_type": "Plan"},
+            "tool_input": {"subagent_type": "Plan", "prompt": "issue_1234 plan"},
         })
         assert result.returncode == 0
         assert _get_decision(result) is None
@@ -144,33 +144,29 @@ class TestAgentSpawnGuardAllow:
         assert result.returncode == 0
         assert _get_decision(result) is None
 
-    def test_team_name_allows(self, tmp_path):
-        """Agent + team_name指定あり＋config.json実在 → 許可"""
-        # config.jsonを配置した仮HOMEを作成
-        config_dir = tmp_path / ".claude" / "teams" / "dev-team"
-        config_dir.mkdir(parents=True)
-        (config_dir / "config.json").write_text("{}")
-        env = {**os.environ, "HOME": str(tmp_path)}
-
+    def test_team_name_allows(self):
+        """Agent + team_name指定あり → 許可（config.json不要）"""
         result = _run_guard({
             "tool_name": "Agent",
             "tool_input": {
                 "subagent_type": "coder",
                 "team_name": "dev-team",
+                "prompt": "issue_7947 implement",
             },
-        }, env=env)
+        })
         assert result.returncode == 0
         assert _get_decision(result) is None
 
-    def test_fake_team_name_denied(self):
-        """Agent + team_name指定あり＋config.json不在 → deny（偽装対策）"""
+    def test_team_name_without_config_allowed(self):
+        """Agent + team_name指定あり＋config.json不在 → 許可（config.jsonチェック廃止）"""
         env = {**os.environ, "HOME": tempfile.mkdtemp()}
         result = _run_guard({
             "tool_name": "Agent",
             "tool_input": {
                 "subagent_type": "coder",
-                "team_name": "fake-team",
+                "team_name": "any-team",
+                "prompt": "issue_7947 test",
             },
         }, env=env)
         assert result.returncode == 0
-        assert _get_decision(result) == "deny"
+        assert _get_decision(result) is None

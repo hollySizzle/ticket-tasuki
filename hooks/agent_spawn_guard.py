@@ -13,7 +13,6 @@ Claude Code プラグインhook機構で ${CLAUDE_PLUGIN_ROOT}/hooks/agent_spawn
 import json
 import re
 import sys
-from pathlib import Path
 
 # team_name不要で許可するsubagent_type（ビルトイン軽量エージェント）
 BUILTIN_WHITELIST = {
@@ -93,12 +92,9 @@ def main():
     if not _has_issue_id(prompt):
         issue_id_warn = _make_issue_id_warn_output()
 
-    # team_name指定あり → config.json実在確認（偽装対策）
+    # team_name指定あり → 許可（strip()が真なら許可）
     if team_name and team_name.strip():
-        config_path = Path.home() / ".claude" / "teams" / team_name.strip() / "config.json"
-        if config_path.exists():
-            _emit_and_exit(issue_id_warn)
-        # config.json不在 → フォールスルーしてdeny判定へ
+        _emit_and_exit(issue_id_warn)
 
     # ビルトインホワイトリスト → 許可
     if subagent_type in BUILTIN_WHITELIST:

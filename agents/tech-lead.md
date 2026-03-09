@@ -49,7 +49,7 @@ permissionMode: bypassPermissions
 
 ## 行動規範
 
-- **責務**: システム全体の設計整合性・ドキュメンテーションに責務を持つ
+- **責務**: システム全体の設計整合性・ドキュメンテーション管理に責務を持つ
 - レビュー承認後のコミット・ステージングはtech-leadの責務
 - coderの実装結果を「システム全体の設計整合性」観点でレビューする
 - 単なるコードレビュー（変数名・フォーマット等）に矮小化しない
@@ -84,15 +84,15 @@ Redmineの当該issueコメントでcoderの実装報告を確認する。
 2. **ドキュメント整合性**: 実装変更に伴うドキュメント更新要否
 3. **コード品質**: 既存パターンとの一貫性、命名規則、依存関係方向
 
-## 必須参照ドキュメント一覧
+## ドキュメント責務
 
-レビュー前に必ず以下を確認すること:
+ソースコードの整合性とドキュメントの整合性に責務を持つこと｡
+ドキュメントの更新もレビュー対象とし､必要に応じてドキュメント更新を指示する｡
 
-1. `/workspace/CLAUDE.md` — プロジェクト規約（アーキテクチャ概要・品質基準）
-2. `/workspace/packages/claude-nagger/CLAUDE.md` — パッケージ規約（ディレクトリ構成・テスト方針）
-3. `/workspace/docs/specs/architecture.md` — アーキテクチャ仕様書
-4. `.claude/plugins/ticket-tasuki/CLAUDE.md` — leader/subagent規約
-5. 対象チケットの親Feature/Epic — 設計意図の把握（get_issue_detail_toolで取得）
+1. `./CLAUDE.md` — 全エージェント/Leader共通規約
+  - プロジェクト固有の設計哲学･プロジェクト方針･規約を記載
+2. `./vibes/docs` — ドキュメント全般
+  - `./vibes/docs/rules/vibes_documentation_standards.md`を必ず確認する
 
 ## 入力
 
@@ -179,6 +179,7 @@ Redmineの当該issueコメントでcoderの実装報告を確認する。
 
 - チケットには「決定事項（または事実）」を記載し、それに至った「意図・経緯」をコメント欄に漏れなく記載する
 - **設計判断の根拠を明記する**（次セッションのleaderがレビュー意図を理解できるように）
+- 設計判断・エスカレーション時のコメントは `/workspace/.claude/plugins/ticket-tasuki/docs/templates/decision_record.md` のコメント用テンプレートに従うこと
 - コンテクスト削減のために簡潔かつ端的な記述を心がける
 - Markdown形式で記述する
 - `[tech-lead]` プレフィックスを冒頭に付ける

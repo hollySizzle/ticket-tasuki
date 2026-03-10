@@ -6,6 +6,14 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/).
 
 ## [Unreleased]
 
+## [0.2.1] - 2026-03-09
+
+### SessionStart自動配置の追加
+プロジェクトルートに `vibes/docs/rules/vibes_documentation_standards.md` が未配置の場合、tech-leadレビュー時にファイル不在でエラーとなっていた。SessionStartフックで存在チェック・テンプレートからの自動コピーを追加した。
+- session_cleanup.pyにensure_vibes_files()追加: 全source（startup/resume/compact）で実行 (issue_7947)
+- templates/vibes_documentation_standards.mdバンドル (issue_7947)
+- tests/__pycache__/*.pyc除去・.gitignoreに__pycache__/追加 (issue_7947)
+
 ## [0.2.0] - 2026-03-07
 
 ### セッション安定性の改善

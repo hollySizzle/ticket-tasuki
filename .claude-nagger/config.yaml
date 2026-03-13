@@ -154,6 +154,11 @@ session_startup:
               [ ] 指摘は[事実]/[仮説]に分類すること
               [ ] 報告=チケットコメント（[tech-lead]プレフィックス付き）
 
+# Agent spawn guard設定
+agent_spawn_guard:
+  # subagent起動時にpromptへ注入するoverride指示テンプレート
+  override_instruction: "Redmine get_issue_detail_toolでチケットコメントから最新の指示を取得し、指示に従って作業を実行せよ"
+
 # 規約提案機能（hook_inputを分析しルール改善を提案）
 # デフォルトOFF。有効化するにはenabled: trueに変更
 suggest_rules:

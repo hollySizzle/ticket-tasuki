@@ -11,8 +11,11 @@ Claude Code プラグインhook機構で ${CLAUDE_PLUGIN_ROOT}/hooks/agent_spawn
 """
 
 import json
+import os
 import re
 import sys
+
+import yaml
 
 # team_name不要で許可するsubagent_type（ビルトイン軽量エージェント）
 BUILTIN_WHITELIST = {
@@ -27,21 +30,23 @@ ISSUE_ID_PATTERN = re.compile(r"issue_\d+")
 # ビルトインsubagent_typeは対象外
 PROMPT_ONLY_PATTERN = re.compile(r"^issue_\d{1,6}$")
 
-# issue_{id}欠落時の警告メッセージ
-ISSUE_ID_WARN_MESSAGE = """\
+# デフォルトメッセージ（config.yaml読み込み失敗時のフォールバック）
+_DEFAULT_ISSUE_ID_WARN_MESSAGE = """\
 ⚠ Agent promptにissue_{id}が含まれていません。
 トレーサビリティのため、promptにissue_{id}（例: issue_1234）を含めてください。"""
 
-# promptパターン不一致時のブロックメッセージ
-PROMPT_PATTERN_BLOCK_MESSAGE = """\
+_DEFAULT_OVERRIDE_INSTRUCTION = (
+    "Redmine get_issue_detail_toolでチケットコメントから最新の指示を取得し、指示に従って作業を実行せよ"
+)
+
+_DEFAULT_PROMPT_PATTERN_BLOCK_MESSAGE = """\
 Agent tool規約: promptパターン制限
 ━━━━━━━━━━━━━━━━━
 検出prompt: "{prompt}"
 要件: promptは "issue_{{数字1-6桁}}" の形式（例: issue_1234）でなければなりません。
 対処: promptを issue_{{id}} 形式に変更してください。"""
 
-# ブロック時メッセージ
-BLOCK_MESSAGE_TEMPLATE = """\
+_DEFAULT_BLOCK_MESSAGE_TEMPLATE = """\
 Agent tool規約: sub-agent直接起動の制限
 ━━━━━━━━━━━━━━━━━
 検出: subagent_type="{subagent_type}"
@@ -49,6 +54,61 @@ Agent tool規約: sub-agent直接起動の制限
 1. TeamCreate でチームを作成し、Agent tool に team_name を指定して起動してください
 2. sub-agent（Agent tool単独）でのticket-tasukiロール起動は禁止です
 3. 軽量エージェント（Explore, Plan）はsub-agentで利用可能です"""
+
+
+def _load_guard_config() -> dict:
+    """config.yamlからagent_spawn_guardセクションを読み込む。
+    読み込み失敗時は空dictを返す。
+    """
+    try:
+        script_dir = os.path.dirname(os.path.abspath(__file__))
+        config_path = os.path.join(script_dir, "..", ".claude-nagger", "config.yaml")
+        config_path = os.path.normpath(config_path)
+        if not os.path.isfile(config_path):
+            return {}
+        with open(config_path, encoding="utf-8") as f:
+            config = yaml.safe_load(f)
+        if not isinstance(config, dict):
+            return {}
+        return config.get("agent_spawn_guard", {}) or {}
+    except Exception:
+        return {}
+
+
+# config.yamlから設定読み込み（フォールバック付き）
+_guard_config = _load_guard_config()
+
+ISSUE_ID_WARN_MESSAGE = (
+    _guard_config.get("issue_id_warn_message") or _DEFAULT_ISSUE_ID_WARN_MESSAGE
+).rstrip()
+
+PROMPT_PATTERN_BLOCK_MESSAGE = (
+    _guard_config.get("prompt_pattern_block_message") or _DEFAULT_PROMPT_PATTERN_BLOCK_MESSAGE
+).rstrip()
+
+BLOCK_MESSAGE_TEMPLATE = (
+    _guard_config.get("block_message_template") or _DEFAULT_BLOCK_MESSAGE_TEMPLATE
+).rstrip()
+
+
+def _load_override_instruction() -> str:
+    """config.yamlからoverride_instructionを取得。フォールバック付き。"""
+    return (
+        _guard_config.get("override_instruction") or _DEFAULT_OVERRIDE_INSTRUCTION
+    )
+
+
+def _make_override_output(original_prompt: str, override_instruction: str) -> dict:
+    """promptにoverride指示を付加したupdatedInput出力を生成"""
+    return {
+        "hookSpecificOutput": {
+            "hookEventName": "PreToolUse",
+            "permissionDecision": "allow",
+            "updatedInput": {
+                "prompt": f"{original_prompt}\n\n{override_instruction}",
+            },
+        }
+    }
 
 
 def _has_issue_id(prompt: str) -> bool:
@@ -104,11 +164,16 @@ def main():
     if not _has_issue_id(prompt):
         issue_id_warn = _make_issue_id_warn_output()
 
-    # team_name指定あり → promptパターンチェック後に許可
+    # team_name指定あり → promptパターンチェック後に許可（override注入付き）
     if team_name and team_name.strip():
         # ビルトインsubagent_typeはprompt自由文を許可
         if subagent_type not in BUILTIN_WHITELIST:
-            if not PROMPT_ONLY_PATTERN.match(prompt or ""):
+            if PROMPT_ONLY_PATTERN.match(prompt or ""):
+                # promptパターン合致 → override指示を注入してallow
+                override_instruction = _load_override_instruction()
+                override_output = _make_override_output(prompt, override_instruction)
+                _emit_and_exit(override_output)
+            else:
                 reason = PROMPT_PATTERN_BLOCK_MESSAGE.format(prompt=prompt or "(空)")
                 output = {
                     "hookSpecificOutput": {

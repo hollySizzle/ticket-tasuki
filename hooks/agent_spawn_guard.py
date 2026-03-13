@@ -23,10 +23,22 @@ BUILTIN_WHITELIST = {
 # issue_{id}パターン（トレーサビリティチェック用）
 ISSUE_ID_PATTERN = re.compile(r"issue_\d+")
 
+# promptパターン制限（team agent経由のsubagent起動時に適用）
+# ビルトインsubagent_typeは対象外
+PROMPT_ONLY_PATTERN = re.compile(r"^issue_\d{1,6}$")
+
 # issue_{id}欠落時の警告メッセージ
 ISSUE_ID_WARN_MESSAGE = """\
 ⚠ Agent promptにissue_{id}が含まれていません。
 トレーサビリティのため、promptにissue_{id}（例: issue_1234）を含めてください。"""
+
+# promptパターン不一致時のブロックメッセージ
+PROMPT_PATTERN_BLOCK_MESSAGE = """\
+Agent tool規約: promptパターン制限
+━━━━━━━━━━━━━━━━━
+検出prompt: "{prompt}"
+要件: promptは "issue_{{数字1-6桁}}" の形式（例: issue_1234）でなければなりません。
+対処: promptを issue_{{id}} 形式に変更してください。"""
 
 # ブロック時メッセージ
 BLOCK_MESSAGE_TEMPLATE = """\
@@ -92,8 +104,20 @@ def main():
     if not _has_issue_id(prompt):
         issue_id_warn = _make_issue_id_warn_output()
 
-    # team_name指定あり → 許可（strip()が真なら許可）
+    # team_name指定あり → promptパターンチェック後に許可
     if team_name and team_name.strip():
+        # ビルトインsubagent_typeはprompt自由文を許可
+        if subagent_type not in BUILTIN_WHITELIST:
+            if not PROMPT_ONLY_PATTERN.match(prompt or ""):
+                reason = PROMPT_PATTERN_BLOCK_MESSAGE.format(prompt=prompt or "(空)")
+                output = {
+                    "hookSpecificOutput": {
+                        "hookEventName": "PreToolUse",
+                        "permissionDecision": "deny",
+                        "permissionDecisionReason": reason,
+                    }
+                }
+                _emit_and_exit(output)
         _emit_and_exit(issue_id_warn)
 
     # ビルトインホワイトリスト → 許可

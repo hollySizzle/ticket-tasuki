@@ -145,28 +145,54 @@ class TestAgentSpawnGuardAllow:
         assert _get_decision(result) is None
 
     def test_team_name_allows(self):
-        """Agent + team_name指定あり → 許可（config.json不要）"""
+        """Agent + team_name指定あり + promptパターン準拠 → 許可"""
         result = _run_guard({
             "tool_name": "Agent",
             "tool_input": {
                 "subagent_type": "coder",
                 "team_name": "dev-team",
-                "prompt": "issue_7947 implement",
+                "prompt": "issue_7947",
             },
         })
         assert result.returncode == 0
         assert _get_decision(result) is None
 
     def test_team_name_without_config_allowed(self):
-        """Agent + team_name指定あり＋config.json不在 → 許可（config.jsonチェック廃止）"""
+        """Agent + team_name指定あり＋config.json不在 + promptパターン準拠 → 許可"""
         env = {**os.environ, "HOME": tempfile.mkdtemp()}
         result = _run_guard({
             "tool_name": "Agent",
             "tool_input": {
                 "subagent_type": "coder",
                 "team_name": "any-team",
-                "prompt": "issue_7947 test",
+                "prompt": "issue_7947",
             },
         }, env=env)
+        assert result.returncode == 0
+        assert _get_decision(result) is None
+
+    def test_team_name_freeform_prompt_denied(self):
+        """Agent + team_name指定あり + 自由文prompt → deny（promptパターン制限）"""
+        result = _run_guard({
+            "tool_name": "Agent",
+            "tool_input": {
+                "subagent_type": "coder",
+                "team_name": "dev-team",
+                "prompt": "issue_7947 implement feature",
+            },
+        })
+        assert result.returncode == 0
+        assert _get_decision(result) == "deny"
+
+    def test_builtin_exempt_from_prompt_pattern(self):
+        """ビルトインsubagent_typeはpromptパターン制限対象外"""
+        result = _run_guard({
+            "tool_name": "Agent",
+            "tool_input": {
+                "subagent_type": "Explore",
+                "team_name": "dev-team",
+                "prompt": "issue_1234 explore the codebase",
+            },
+        })
         assert result.returncode == 0
         assert _get_decision(result) is None

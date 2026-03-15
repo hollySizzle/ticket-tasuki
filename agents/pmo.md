@@ -26,7 +26,7 @@ tools:
   - mcp__redmine_epic_grid__assign_to_version_tool
   - mcp__redmine_epic_grid__move_to_next_version_tool
   - Read
-model: sonnet
+model:  claude-sonnet-4-6
 permissionMode: bypassPermissions
 ---
 

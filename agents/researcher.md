@@ -27,7 +27,7 @@ tools:
   - mcp__serena__check_onboarding_performed
   - mcp__serena__think_about_collected_information
   - mcp__serena__think_about_task_adherence
-model: sonnet
+model: claude-sonnet-4-6
 permissionMode: bypassPermissions
 ---
 

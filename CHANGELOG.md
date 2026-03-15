@@ -6,6 +6,12 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/).
 
 ## [Unreleased]
 
+## [0.2.3] - 2026-03-15
+
+### バグ暫定対応
+ClaudeCodeの既知のバグに暫定対応
+https://github.com/anthropics/claude-code/issues/26408 
+
 ## [0.2.2] - 2026-03-15
 
 ### 各agentのモデルを見直し

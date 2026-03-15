@@ -24,7 +24,7 @@ tools:
   - mcp__serena__list_memories
   - mcp__serena__check_onboarding_performed
   - mcp__serena__execute_shell_command
-model: soneet
+model: claude-sonnet-4-6
 permissionMode: bypassPermissions
 ---
 

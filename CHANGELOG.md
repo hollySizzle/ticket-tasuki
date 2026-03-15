@@ -6,6 +6,11 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/).
 
 ## [Unreleased]
 
+## [0.2.2] - 2026-03-15
+
+### 各agentのモデルを見直し
+opusはトークン量が重いため､試験的にsonnetに変更してみる
+
 ## [0.2.1] - 2026-03-09
 
 ### SessionStart自動配置の追加

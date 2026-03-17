@@ -30,6 +30,18 @@ AUTO_PLACE_FILES = [
         "vibes/docs/rules/vibes_documentation_standards.md",
         os.path.join(PLUGIN_ROOT, "templates", "vibes_documentation_standards.md"),
     ),
+    (
+        "vibes/docs/rules/ticket_comment_templates.md",
+        os.path.join(PLUGIN_ROOT, "templates", "ticket_comment_templates.md"),
+    ),
+    (
+        "vibes/docs/rules/ticket_conventions.md",
+        os.path.join(PLUGIN_ROOT, "templates", "ticket_conventions.md"),
+    ),
+    (
+        "vibes/docs/rules/tasuki_workflow.md",
+        os.path.join(PLUGIN_ROOT, "templates", "tasuki_workflow.md"),
+    ),
 ]
 
 

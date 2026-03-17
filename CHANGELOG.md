@@ -6,6 +6,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/).
 
 ## [Unreleased]
 
+### role別ツール権限調整
+- tech-leadにEdit/Writeツール付与 — vibes/docs配下ドキュメント編集権限 (issue_8227)
+- tech-lead禁止事項を更新 — ソースコード編集禁止、vibes/docs配下のみ編集可 (issue_8227)
+
 ## [0.2.3] - 2026-03-15
 
 ### バグ暫定対応

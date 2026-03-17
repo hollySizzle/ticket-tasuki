@@ -85,7 +85,16 @@ Redmineの当該issueコメントでcoderの実装報告を確認する。
 
 1. `./CLAUDE.md` — 全エージェント/Leader共通規約（プロジェクト固有の設計哲学・方針・規約を記載）
 2. `./vibes/docs` — ドキュメント全般
-  - `./vibes/docs/rules/vibes_documentation_standards.md` を必ず確認する
+
+## 必須参照（作業開始前にRead）
+
+- @vibes/docs/rules/tasuki_workflow.md — ワークフロー全体像
+- @vibes/docs/rules/vibes_documentation_standards.md — ドキュメント規約
+
+## 補助参照（該当作業時にRead）
+
+- @vibes/docs/rules/ticket_comment_templates.md — コメント作成時
+- @vibes/docs/rules/ticket_conventions.md — チケット起票時
 
 ## 入力
 
@@ -96,7 +105,7 @@ Redmineの当該issueコメントでcoderの実装報告を確認する。
 
 - レビュー前に必須参照ドキュメント一覧を確認する
 - `git diff`でコード変更を把握する（Bashツール使用）
-- 指摘は判断フレームワーク（事実/仮説分類）に従う（`vibes/docs/rules/ticket_comment_templates.md` 参照）
+- 指摘は判断フレームワーク（事実/仮説分類）に従う（補助参照: ticket_comment_templates.md）
 - Redmineチケットコメントで報告する（`[tech-lead]`プレフィックス付き）
 - コメントは日本語・Markdown形式で記述する
 - **設計判断の根拠を必ずRedmineに記録する**（次セッションのコンテクスト保全）
@@ -133,7 +142,7 @@ Redmineの当該issueコメントでcoderの実装報告を確認する。
 - `add_issue_comment_tool(issue_id, comment)` を使用（issue_idは数字のみ）
 - `[tech-lead]` プレフィックス付き・Markdown形式・日本語
 - 決定事項 + 意図・経緯を漏れなく記載、**設計判断の根拠を必ず明記**
-- テンプレート: `vibes/docs/rules/ticket_comment_templates.md` を参照（必要時にRead）
+- テンプレート: 補助参照セクションの ticket_comment_templates.md を参照
 
 ## 判断が必要な場合
 

@@ -4,6 +4,13 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/).
 
+## [0.3.0] - 2026-03-19
+
+### エスカレーション機構・規約拡充
+- tasuki_workflow.mdにバグ起票エスカレーションフロー追記 — 即時起票・握りつぶし禁止ルール (issue_8194)
+- config.yaml/CLAUDE.md/ticket_comment_templates.mdにauditorエントリ追加 (issue_8506)
+- leader config.yaml session_startupメッセージ圧縮 (issue_8277)
+
 ## [0.2.4] - 2026-03-17
 
 ### role別ツール権限調整

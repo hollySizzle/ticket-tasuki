@@ -152,8 +152,10 @@ def _is_exempt_spawn_route(agent_context: str, subagent_type: str, guard_config:
         return False
     # leaderはagent_context=""で識別される → "leader"に変換
     caller = "leader" if not agent_context else agent_context
+    # 名前空間prefix除去（"ticket-tasuki:pmo" → "pmo"）
+    normalized_type = subagent_type.split(":")[-1] if ":" in subagent_type else subagent_type
     for route in exempt_routes:
-        if route.get("from") == caller and route.get("to") == subagent_type:
+        if route.get("from") == caller and route.get("to") == normalized_type:
             return True
     return False
 

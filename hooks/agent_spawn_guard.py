@@ -55,7 +55,6 @@ Agent tool規約: sub-agent直接起動の制限
 
 def _load_guard_config() -> dict:
     """config.yamlからagent_spawn_guardセクションを読み込む。
-    sendmessage_guard.exempt_routesも取り込む。
     読み込み失敗時は空dictを返す。
     """
     try:
@@ -68,11 +67,7 @@ def _load_guard_config() -> dict:
             config = yaml.safe_load(f)
         if not isinstance(config, dict):
             return {}
-        guard = config.get("agent_spawn_guard", {}) or {}
-        # sendmessage_guard.exempt_routesをexempt_spawn_routesとして取り込む
-        sendmessage_guard = config.get("sendmessage_guard", {}) or {}
-        guard["exempt_spawn_routes"] = sendmessage_guard.get("exempt_routes", []) or []
-        return guard
+        return config.get("agent_spawn_guard", {}) or {}
     except Exception:
         return {}
 
@@ -138,20 +133,21 @@ def _has_issue_id(prompt: str) -> bool:
     return bool(ISSUE_ID_PATTERN.search(prompt))
 
 
-def _is_exempt_spawn_route(agent_context: str, subagent_type: str) -> bool:
-    """exempt_spawn_routesに該当するcaller→subagent_type経路かを判定
+def _is_exempt_spawn_route(agent_context: str, subagent_type: str, guard_config: dict) -> bool:
+    """exempt_routesに該当するcaller→subagent_type経路かを判定
 
-    config.yaml の sendmessage_guard.exempt_routes に定義された経路の場合、
+    config.yaml の agent_spawn_guard.exempt_routes に定義された経路の場合、
     issue_idチェックをスキップする。
 
     Args:
         agent_context: 呼び出し元のコンテキスト（例: "leader"）
         subagent_type: 起動対象のsubagentタイプ（例: "pmo"）
+        guard_config: agent_spawn_guard設定辞書
 
     Returns:
         免除対象経路の場合 True
     """
-    exempt_routes = _guard_config.get("exempt_spawn_routes", [])
+    exempt_routes = guard_config.get("exempt_routes", [])
     if not exempt_routes:
         return False
     # leaderはagent_context=""で識別される → "leader"に変換
@@ -206,7 +202,7 @@ def main():
     # --- issue_{id}トレーサビリティチェック ---
     # exempt_spawn_routesに該当する経路はissue_idチェックをスキップ
     issue_id_warn = None
-    if not _has_issue_id(prompt) and not _is_exempt_spawn_route(agent_context, subagent_type):
+    if not _has_issue_id(prompt) and not _is_exempt_spawn_route(agent_context, subagent_type, _guard_config):
         issue_id_warn = _make_issue_id_warn_output()
 
     # team_name指定あり → promptパターンチェック後に許可（override注入付き）

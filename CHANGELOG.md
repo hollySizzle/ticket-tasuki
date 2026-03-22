@@ -4,6 +4,11 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/).
 
+## [0.3.1] - 2026-03-22
+
+### 設計意図コメント追記
+- task_spawn_guard.py docstringにagent_spawn_guardセクション共有の設計意図コメント追記 (issue_8562)
+
 ## [0.3.0] - 2026-03-19
 
 ### エスカレーション機構・規約拡充

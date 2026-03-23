@@ -201,17 +201,23 @@ def main():
     team_name = tool_input.get("team_name", "")
     prompt = tool_input.get("prompt", "")
 
+    # exempt_routesに該当する経路かを判定（issue_id・promptパターン両方スキップ）
+    is_exempt = _is_exempt_spawn_route(agent_context, subagent_type, _guard_config)
+
     # --- issue_{id}トレーサビリティチェック ---
-    # exempt_spawn_routesに該当する経路はissue_idチェックをスキップ
+    # exempt_routesに該当する経路はissue_idチェックをスキップ
     issue_id_warn = None
-    if not _has_issue_id(prompt) and not _is_exempt_spawn_route(agent_context, subagent_type, _guard_config):
+    if not _has_issue_id(prompt) and not is_exempt:
         issue_id_warn = _make_issue_id_warn_output()
 
     # team_name指定あり → promptパターンチェック後に許可（override注入付き）
     if team_name and team_name.strip():
         # ビルトインsubagent_typeはprompt自由文を許可
         if subagent_type not in BUILTIN_WHITELIST:
-            if PROMPT_ONLY_PATTERN.match(prompt or ""):
+            # exempt_routesに該当する場合はpromptパターンチェックをスキップ
+            if is_exempt:
+                _emit_and_exit(None)
+            elif PROMPT_ONLY_PATTERN.match(prompt or ""):
                 # promptパターン合致 → override指示を注入してallow
                 override_instruction = _load_override_instruction()
                 override_output = _make_override_output(prompt, override_instruction)

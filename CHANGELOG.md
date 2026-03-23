@@ -4,6 +4,11 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/).
 
+## [0.3.2] - 2026-03-23
+
+### Features
+- config.yaml subagent_typesにステータス別行動マッピング追記 — 全6ロールに受信時/送信時の期待行動を定義（#8642）
+
 ## [0.3.1] - 2026-03-22
 
 ### 設計意図コメント追記
